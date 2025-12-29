@@ -1,0 +1,6 @@
+[submodule "submodules/stb_image"]
+	path = submodules/stb_image
+	url = https://github.com/planetack/stb_image
+[submodule "submodules/imgui"]
+	path = submodules/imgui
+	url = https://github.com/ocornut/imgui.git
