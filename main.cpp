@@ -49,8 +49,6 @@ void*                               GImGuiDemoMarkerCallbackUserData = NULL;
 myCamera::Camera viewCamera;
 float deltaTime = 0.0f;	// время между текущим и последним кадрами
 float lastFrame = 0.0f; // время последнего кадра
-float qq;
-
 
 
 bool  cloudOpen = false;
