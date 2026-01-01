@@ -22,6 +22,8 @@ target_include_directories(glad PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/submodules/g
 # Добавляем библиотеку imgui
 set(IMGUI_DIR "${CMAKE_CURRENT_SOURCE_DIR}/submodules/imgui")
 set(NFD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/submodules/nativefiledialog-extended/src")
+set(STB_IMAGE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/submodules/stb_image")
+set(GLAD_INCLUDE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/submodules/glad/include")
 
 # Создаем список исходных файлов для imgui
 set(IMGUI_SOURCES
@@ -59,12 +61,13 @@ add_executable(main main.cpp src/myShader.cpp src/myCamera.cpp )
 
 # Добавляем директории включаемых файлов
 target_include_directories(main PRIVATE  
-    /home/ivanskurikhinadmin/Issue/SelfLearnGL-main/openGL/glad/include 
-    /home/ivanskurikhinadmin/Issue/SelfLearnGL-main/openGL/stb/
+    ${GLAD_INCLUDE_PATH}
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
     ${NFD_DIR}/include
     ${GTK3_INCLUDE_DIRS}
+    ${STB_IMAGE_PATH}
+    ${glm_INCLUDE_DIRS}
 )
 
 # Связываем библиотеки
@@ -74,7 +77,6 @@ target_link_libraries(main
     glad 
     imgui
     nfd
-    glm 
     ${PCL_LIBRARIES}
     ${GTK3_LIBRARIES}
 )
