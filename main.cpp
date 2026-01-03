@@ -54,7 +54,7 @@ float lastFrame = 0.0f; // время последнего кадра
 bool  cloudOpen = false;
 bool  initCloud = false;
 std::vector<float> intensity;  //(cloud_size * 3, 0.0f);
-std::vector<glm::vec3> pointPosition; //(cloud_size);
+std::vector<glm::vec3> pointPosition; // массив который содержит точки
 int cloud_size;
 
 
@@ -169,7 +169,13 @@ static void ShowExampleAppMainMenuBar()
 static void ShowExampleMenuFile()
 {
     IMGUI_DEMO_MARKER("Examples/Menu");
-    if (ImGui::MenuItem("New")) {}
+    if (ImGui::MenuItem("New")) 
+     { 
+
+        // очищаем массив точек
+     }
+
+
     if (ImGui::MenuItem("Open", "Ctrl+O")) {
         NFD_Init();
 
@@ -199,7 +205,9 @@ static void ShowExampleMenuFile()
     if (ImGui::MenuItem("Background Color")) {show_BackroundColor = true;}
     if (ImGui::MenuItem("Point Color")) {   show_pointColor = true;}
     ImGui::Separator();
-    if (ImGui::MenuItem("Quit", "Alt+F4")) {}
+    if (ImGui::MenuItem("Quit", "Alt+F4")) {
+        // делаем завершение программы
+    }
 }
 
 
