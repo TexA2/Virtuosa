@@ -57,7 +57,7 @@ target_compile_definitions(imgui PRIVATE
     IMGUI_IMPL_OPENGL_LOADER_GLAD
 )
 
-add_executable(main main.cpp src/myShader.cpp src/myCamera.cpp )
+add_executable(main main.cpp src/myShader.cpp src/myCamera.cpp src/viGui.cpp)
 
 # Добавляем директории включаемых файлов
 target_include_directories(main PRIVATE  
