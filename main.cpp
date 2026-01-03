@@ -53,6 +53,7 @@ float lastFrame = 0.0f; // время последнего кадра
 bool  initCloud = false;
 std::vector<float> intensity;  //(cloud_size * 3, 0.0f);
 std::vector<glm::vec3> pointPosition; // массив который содержит точки
+bool show_intensity_color = false;
 
 
 unsigned int framebuffer;
@@ -179,9 +180,11 @@ int main() {
 
 // настройка вершинных буферов
     unsigned int VAO, instanceVBO;
+    unsigned int intensityVBO;
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &instanceVBO); 
+    glGenBuffers(1, &intensityVBO);
 
     glBindVertexArray(VAO);
 
@@ -193,6 +196,16 @@ int main() {
     glEnableVertexAttribArray(0);
 
     glVertexAttribDivisor(0, 1); 
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, intensityVBO);
+    glBufferData(GL_ARRAY_BUFFER, intensity.size() * sizeof(float), intensity.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribDivisor(1, 1);
+
 
 
  //отвязка параметров чтоб случайно не изменить   
@@ -216,6 +229,8 @@ int main() {
     unsigned int viewLoc = glGetUniformLocation(First.ID, "view");
     unsigned int projectionLoc = glGetUniformLocation(First.ID, "projection");
     unsigned int colorLoc = glGetUniformLocation(First.ID, "ourColor");
+
+    unsigned int useIntensityColorLoc = glGetUniformLocation(First.ID, "useIntensityColor");
 
 
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -263,6 +278,14 @@ int main() {
                 glEnableVertexAttribArray(0);
                 glVertexAttribDivisor(0, 1); 
 
+
+                glBindBuffer(GL_ARRAY_BUFFER, intensityVBO);
+                glBufferData(GL_ARRAY_BUFFER, intensity.size() * sizeof(float), intensity.data(), GL_STATIC_DRAW);
+                
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+                glEnableVertexAttribArray(1);
+                glVertexAttribDivisor(1, 1);
+
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindVertexArray(0);
                 initCloud = true;
@@ -279,7 +302,23 @@ int main() {
             
             view = viewCamera.moveCamera(window, deltaTime);
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-            glUniform4f(colorLoc,  point_color.x, point_color.y, point_color.z, point_color.w);
+
+            if (!show_intensity_color)
+            {
+                glUniform1i(useIntensityColorLoc, show_intensity_color);
+
+                glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
+                glDisableVertexAttribArray(1);         // Отключаем атрибут
+
+                glUniform4f(colorLoc,  point_color.x, point_color.y, point_color.z, point_color.w);
+            }
+            else
+            {
+                glUniform1i(useIntensityColorLoc, show_intensity_color);
+
+                glEnableVertexAttribArray(1);
+                glVertexAttribDivisor(1, 1);
+            }
             glDrawArraysInstanced(GL_POINTS, 0, 1, viGui::cloud_size);
             glBindVertexArray(0);
             
@@ -322,6 +361,7 @@ int main() {
             ImGui::Begin("Point Cloud COlor Render", &viGui::show_pointColor);
             
             ImGui::ColorEdit3("clear color", (float*)&point_color);
+            ImGui::Checkbox("Intensity", &show_intensity_color);  
 
             ImGui::End();
         }
