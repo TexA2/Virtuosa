@@ -76,13 +76,17 @@ namespace viGui {
         pcl::io::loadPCDFile<pcl::PointXYZI>(path, *cloud);
 
         cloud_size = cloud->width * cloud->height;
-        intensity.resize(cloud_size * 3, 0.0f);
+
+        intensity.clear();
+
+
+        pointPosition.clear();
         pointPosition.resize(cloud_size);
 
 
     // Запоминаем положение и интенсивность
-        float min_i = 0.f;
-        float max_i = 0.f;
+        float min_i = std::numeric_limits<float>::max();
+        float max_i = std::numeric_limits<float>::lowest();
 
         for (uint i = 0; i < cloud_size; ++i)
         {
@@ -94,15 +98,14 @@ namespace viGui {
 
         for (uint i = 0; i < cloud_size; ++i)
         {
-            static uint pos = 0;
             float normalized_i = (cloud->points[i].intensity - min_i) / (max_i - min_i);  
 
-            uint8_t r, g, b;
+            float r, g, b;
             intensityToColor(normalized_i, r, g, b);
 
-            intensity[pos]   = r;
-            intensity[++pos] = g;
-            intensity[++pos] = b;
+            intensity.push_back(r);
+            intensity.push_back(g);
+            intensity.push_back(b);
 
         }
 
@@ -110,25 +113,22 @@ namespace viGui {
         cloudOpen = true;
     }
 
-
-
-    void intensityToColor(float intensity, uint8_t& r, uint8_t& g, uint8_t& b) {
-
-        // Нормализация интенсивности (предполагаем диапазон 0-1)
+    void intensityToColor(float intensity, float& r, float& g, float& b) {
         intensity = std::max(0.0f, std::min(1.0f, intensity));
         
-        // Градиент: синий (0) -> зеленый (0.5) -> красный (1)
-        if (intensity < 0.5f) {
-            // Синий -> Зеленый
-            r = 0;
-            g = static_cast<uint8_t>(2 * intensity * 255);
-            b = static_cast<uint8_t>((1 - 2 * intensity) * 255);
-        } else {
-            // Зеленый -> Красный
-            r = static_cast<uint8_t>((2 * intensity - 1) * 255);
-            g = static_cast<uint8_t>((2 - 2 * intensity) * 255);
-            b = 0;
-        }
+        float r4 = 4.0f * intensity;
+        
+        float rf = std::min(r4 - 1.5f, -r4 + 4.5f);
+        float gf = std::min(r4 - 0.5f, -r4 + 3.5f);
+        float bf = std::min(r4 + 0.5f, -r4 + 2.5f);
+        
+        rf = std::max(0.0f, std::min(1.0f, rf));
+        gf = std::max(0.0f, std::min(1.0f, gf));
+        bf = std::max(0.0f, std::min(1.0f, bf));
+        
+        r = static_cast<uint8_t>(rf * 255);
+        g = static_cast<uint8_t>(gf * 255);
+        b = static_cast<uint8_t>(bf * 255);
     }
 
 }

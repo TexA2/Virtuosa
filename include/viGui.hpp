@@ -29,7 +29,7 @@ namespace viGui {
     void ShowExampleAppMainMenuBar(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
     
     void pointCloudOpen(std::string path, std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
-    void intensityToColor(float intensity, uint8_t& r, uint8_t& g, uint8_t& b);
+    void intensityToColor(float intensity, float& r, float& g, float& b);
 }
 
 #endif
