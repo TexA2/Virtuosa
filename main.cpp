@@ -28,6 +28,8 @@
 
 #include "nfd.hpp"
 
+#include "globals.h"
+
 #define WIDTH  1280
 #define HEIGHT 1024
 
@@ -54,6 +56,7 @@ bool  initCloud = false;
 std::vector<float> intensity;  //(cloud_size * 3, 0.0f);
 std::vector<glm::vec3> pointPosition; // массив который содержит точки
 bool show_intensity_color = false;
+bool buttonQuit = false;
 
 
 unsigned int framebuffer;
@@ -404,7 +407,13 @@ int main() {
             frameCount = 0;
             lastTime = currentTime;
         }
+    
+        if(buttonQuit) {
+            glfwSetWindowShouldClose(window, true);
+        }
     }
+
+    
 
 
     // Cleanup

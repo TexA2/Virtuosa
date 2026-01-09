@@ -13,8 +13,9 @@ namespace viGui {
     {
         if (ImGui::MenuItem("New")) 
         { 
-
             // очищаем массив точек
+            pointPosition.clear();
+            initCloud = false;
         }
 
 
@@ -41,6 +42,7 @@ namespace viGui {
             }
 
             NFD_Quit();
+            initCloud = false;
         }
         if (ImGui::MenuItem("Save", "Ctrl+S")) {}
         if (ImGui::MenuItem("Save As..")) {}
@@ -49,6 +51,10 @@ namespace viGui {
         ImGui::Separator();
         if (ImGui::MenuItem("Quit", "Alt+F4")) {
             // делаем завершение программы
+
+            // std::cout << "EXIT54"  << buttonQuit << std::endl;
+            buttonQuit = true;
+            // std::cout << "EXIT56"  << buttonQuit << std::endl;
         }
     }
 
