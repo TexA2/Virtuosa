@@ -28,7 +28,7 @@
 
 #include "nfd.hpp"
 
-#include "globals.h"
+// #include "globals.h"
 
 #define WIDTH  1280
 #define HEIGHT 1024
@@ -412,9 +412,6 @@ int main() {
             glfwSetWindowShouldClose(window, true);
         }
     }
-
-    
-
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
