@@ -9,6 +9,8 @@ namespace viGui {
     bool cloudOpen = false;
     int cloud_size = 0;
 
+    bool buttonQuit = false;
+
     void ShowExampleMenuFile(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity)
     {
         if (ImGui::MenuItem("New")) 
@@ -51,10 +53,7 @@ namespace viGui {
         ImGui::Separator();
         if (ImGui::MenuItem("Quit", "Alt+F4")) {
             // делаем завершение программы
-
-            // std::cout << "EXIT54"  << buttonQuit << std::endl;
             buttonQuit = true;
-            // std::cout << "EXIT56"  << buttonQuit << std::endl;
         }
     }
 

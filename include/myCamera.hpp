@@ -45,6 +45,8 @@ namespace myCamera {
      static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
      static void mouseZoomCallback(double xpos, double ypos);
 
+            void resetToZero();
+
         private:
             glm::vec3 cameraPos;        // положение камеры
             glm::vec3 cameraFront;      // вектор направления камеры (направление к цели)

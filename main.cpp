@@ -56,7 +56,7 @@ bool  initCloud = false;
 std::vector<float> intensity;  //(cloud_size * 3, 0.0f);
 std::vector<glm::vec3> pointPosition; // массив который содержит точки
 bool show_intensity_color = false;
-bool buttonQuit = false;
+// bool buttonQuit = false;
 
 
 unsigned int framebuffer;
@@ -292,6 +292,8 @@ int main() {
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindVertexArray(0);
                 initCloud = true;
+
+                viewCamera.resetToZero();
             }
             // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
@@ -408,7 +410,7 @@ int main() {
             lastTime = currentTime;
         }
     
-        if(buttonQuit) {
+        if(viGui::buttonQuit) {
             glfwSetWindowShouldClose(window, true);
         }
     }

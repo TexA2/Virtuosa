@@ -153,3 +153,17 @@ using namespace myCamera;
     }
 
     void Camera::resetFirstMouse() { firstMouse = true; }
+
+    void Camera::resetToZero() {
+        this->cameraPos   = glm::vec3(0.0f, 0.0f,  60.0f);
+        this->cameraFront = glm::vec3(0.0f, 0.f, -1.0f);
+        this->cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+        this->cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
+        this->direction   = cameraFront;
+        this->firstMouse  = true;
+        this->yaw =  0.f;
+        this->roll = 0.f;
+        this->senseRoll = 1.f;
+
+        this->currentOrient = glm::quat(1, 0, 0, 0);
+    }
