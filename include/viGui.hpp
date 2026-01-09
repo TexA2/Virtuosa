@@ -25,9 +25,6 @@ namespace viGui {
     extern bool cloudOpen;
     extern int cloud_size;
 
-    // extern bool initCloud;
-    // extern bool buttonQuit;
-
     void ShowExampleMenuFile(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
     void ShowExampleAppMainMenuBar(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
     
