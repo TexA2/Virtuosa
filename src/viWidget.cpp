@@ -2,7 +2,96 @@
 
 
 
-namespace viGui {
+namespace viWidget {
+
+    GLFWwindow* viMainWidget::initMainWindow()
+    {
+        if (!glfwInit())
+        {
+            std::cerr << "Failed to initialize GLFW\n";
+            return nullptr;
+        }
+
+        // Устанавливаем версию OpenGL
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        window = glfwCreateWindow(_width, _height, "Virtuosa", NULL, NULL);
+
+        if (!window)
+        {
+            std::cerr << "Failed to open GLFW window\n";
+            glfwTerminate();
+            return nullptr;
+        }
+
+        glfwMakeContextCurrent(window);
+
+        glfwSetFramebufferSizeCallback(window, resizeWindow);
+
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+        // ИНИЦИАЛИЗАЦИЯ GLAD
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            std::cerr << "Failed to initialize GLAD\n";
+            glfwTerminate();
+            return nullptr;
+        }
+
+        glfwSwapInterval(0); // отключаем Vsync
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+
+        glViewport(0, 0, _width, _height);
+
+        return window;
+    }
+
+    void viMainWidget::initGui()
+    {
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+
+        float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+
+
+        // Setup scaling
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+        style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+
+        const char* glsl_version = "#version 450";
+
+        ImGui_ImplOpenGL3_Init(glsl_version);
+    }
+
+
+
+
+
+
+
+    void viMainWidget::resizeWindow(GLFWwindow* window, int width, int heigth)
+    {
+        glViewport(0, 0, width, heigth);
+    }
+
+
+
+
 
     bool show_BackroundColor = false;
     bool show_pointColor = false;

@@ -1,6 +1,9 @@
 #ifndef VI_WIDGET
 #define VI_WIDGET
 
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #include "string"
 
@@ -18,7 +21,26 @@
 
 extern bool initCloud;
 
-namespace viGui {
+namespace viWidget {
+
+    class viMainWidget {
+        public:
+            viMainWidget(): _width(1280), _height(1024) {};
+            ~viMainWidget() = default;
+
+            GLFWwindow* initMainWindow();
+            void initGui();
+
+            static void resizeWindow(GLFWwindow* window, int width, int heigth);
+
+
+        private:
+            GLFWwindow* window;
+
+            uint _width;
+            uint _height;
+
+    };
 
     
 

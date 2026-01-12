@@ -1,5 +1,8 @@
-#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
+#include <glad/glad.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -28,15 +31,8 @@
 
 #include "nfd.hpp"
 
-// #include "globals.h"
-
 #define WIDTH  1280
 #define HEIGHT 1024
-
-
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-ImVec4 point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
-
 
 // Helper to wire demo markers located in code to an interactive browser
 typedef void (*ImGuiDemoMarkerCallback)(const char* file, int line, const char* section, void* user_data);
@@ -46,6 +42,13 @@ ImGuiDemoMarkerCallback             GImGuiDemoMarkerCallback = NULL;
 void*                               GImGuiDemoMarkerCallbackUserData = NULL;
 
 #define IMGUI_DEMO_MARKER(section)  do { if (GImGuiDemoMarkerCallback != NULL) GImGuiDemoMarkerCallback("imgui_demo.cpp", __LINE__, section, GImGuiDemoMarkerCallbackUserData); } while (0)
+
+
+
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+ImVec4 point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
+
+
 
 myCamera::Camera viewCamera;
 float deltaTime = 0.0f;	// время между текущим и последним кадрами
@@ -86,100 +89,30 @@ void createFrameBuffer() {
 }
 
 
-void frambuffer_size_callback(GLFWwindow* window, int width, int heigth) {
-    glViewport(0, 0, width, heigth);
-}
-
-
 void mouseScrollCallbacl(GLFWwindow* window, double xoffset, double yoffset){
     viewCamera.zoomCamera(yoffset, deltaTime);
 }
 
 
-GLFWwindow* init() {
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialize GLFW\n";
-        return nullptr;
-    }
-
-    // Устанавливаем версию OpenGL
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Simple GLFW Window", NULL, NULL);
-
-    if (!window)
-    {
-        std::cerr << "Failed to open GLFW window\n";
-        glfwTerminate();
-        return nullptr;
-    }
-
-    glfwSetWindowUserPointer(window, &viewCamera); // это важно!
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, frambuffer_size_callback);
-    glfwSetScrollCallback(window, mouseScrollCallbacl);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-    // ИНИЦИАЛИЗАЦИЯ GLAD - это важно!
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cerr << "Failed to initialize GLAD\n";
-        glfwTerminate();
-        return nullptr;
-    }
-
-    glfwSwapInterval(0); // отключаем Vsync
-
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-
-    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-
-
-    // Setup scaling
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-    style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-
-    const char* glsl_version = "#version 450";
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-
-
-    ImGui_ImplOpenGL3_Init(glsl_version);
-
-    return window;
-}
-
-
 int main() {
 
-    GLFWwindow* window = init();
+    viWidget::viMainWidget MainWindow;
+    
+    GLFWwindow* window = MainWindow.initMainWindow();
 
     if (!window)
     {
-        std::cout << "Error init" << std::endl;
+        std::cout << "Error init window" << std::endl;
         return -1;
     }
 
-    createFrameBuffer();
-    // Устанавливаем viewport
-    glViewport(0, 0, WIDTH, HEIGHT);
+    // придумать, как запихать эти колбеки гармонично
+    glfwSetWindowUserPointer(window, &viewCamera);
+    glfwSetScrollCallback(window, mouseScrollCallbacl);
+
+    MainWindow.initGui();
+    
+    createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
 
 // настройка вершинных буферов
     unsigned int VAO, instanceVBO;
@@ -208,7 +141,6 @@ int main() {
     glEnableVertexAttribArray(1);
 
     glVertexAttribDivisor(1, 1);
-
 
 
  //отвязка параметров чтоб случайно не изменить   
@@ -269,7 +201,7 @@ int main() {
         }
 
 
-        if(viGui::cloudOpen)
+        if(viWidget::cloudOpen)
         {
             if(!initCloud)
             {
@@ -324,7 +256,7 @@ int main() {
                 glEnableVertexAttribArray(1);
                 glVertexAttribDivisor(1, 1);
             }
-            glDrawArraysInstanced(GL_POINTS, 0, 1, viGui::cloud_size);
+            glDrawArraysInstanced(GL_POINTS, 0, 1, viWidget::cloud_size);
             glBindVertexArray(0);
             
             // glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -348,12 +280,12 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        viGui::ShowExampleAppMainMenuBar(pointPosition, intensity);
+        viWidget::ShowExampleAppMainMenuBar(pointPosition, intensity);
 
 
-        if (viGui::show_BackroundColor)
+        if (viWidget::show_BackroundColor)
         {
-            ImGui::Begin("Background Color Render", &viGui::show_BackroundColor);
+            ImGui::Begin("Background Color Render", &viWidget::show_BackroundColor);
             
             ImGui::ColorEdit3("clear color", (float*)&clear_color);
 
@@ -361,9 +293,9 @@ int main() {
         }
 
 
-        if(viGui::show_pointColor)
+        if(viWidget::show_pointColor)
         {
-            ImGui::Begin("Point Cloud COlor Render", &viGui::show_pointColor);
+            ImGui::Begin("Point Cloud COlor Render", &viWidget::show_pointColor);
             
             ImGui::ColorEdit3("clear color", (float*)&point_color);
             ImGui::Checkbox("Intensity", &show_intensity_color);  
@@ -410,7 +342,7 @@ int main() {
             lastTime = currentTime;
         }
     
-        if(viGui::buttonQuit) {
+        if(viWidget::buttonQuit) {
             glfwSetWindowShouldClose(window, true);
         }
     }
