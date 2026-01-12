@@ -1,4 +1,4 @@
-#include <myShader.hpp>
+#include <viShader.hpp>
 
 using namespace myShader;
 

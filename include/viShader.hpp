@@ -1,5 +1,5 @@
-#ifndef MY_SHADER
-#define MY_SHADER
+#ifndef VI_SHADER
+#define VI_SHADER
 
 
 #include <glad/glad.h>

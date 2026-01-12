@@ -10,9 +10,9 @@
 #include <chrono> 
 
 
-#include <myShader.hpp>
-#include <myCamera.hpp>
-#include <viGui.hpp>
+#include <viShader.hpp>
+#include <viCamera.hpp>
+#include <viWidget.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

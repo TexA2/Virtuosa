@@ -1,5 +1,5 @@
-#ifndef VI_GUI
-#define VI_GUI
+#ifndef VI_WIDGET
+#define VI_WIDGET
 
 
 #include "string"
@@ -19,6 +19,8 @@
 extern bool initCloud;
 
 namespace viGui {
+
+    
 
     extern bool show_BackroundColor;
     extern bool show_pointColor;

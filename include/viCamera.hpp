@@ -1,5 +1,5 @@
-#ifndef MY_CAMERA
-#define MY_CAMERA
+#ifndef VI_CAMERA
+#define VI_CAMERA
 
 #include <GLFW/glfw3.h>
 
