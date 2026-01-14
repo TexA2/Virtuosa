@@ -104,7 +104,6 @@ namespace viWidget {
             //TODO: Переделать
             // очищаем массив точек
             //pointPosition.clear();
-            //initCloud = false;
         }
 
 
@@ -131,7 +130,6 @@ namespace viWidget {
             }
 
             NFD_Quit();
-            initCloud = false;
         }
         if (ImGui::MenuItem("Save", "Ctrl+S")) {}
         if (ImGui::MenuItem("Save As..")) {}

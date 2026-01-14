@@ -54,8 +54,6 @@ myCamera::Camera viewCamera;
 float deltaTime = 0.0f;	// время между текущим и последним кадрами
 float lastFrame = 0.0f; // время последнего кадра
 
-
-bool  initCloud = false;
 bool show_intensity_color = false;
 
 unsigned int framebuffer;

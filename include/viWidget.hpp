@@ -19,8 +19,6 @@
 
 #include <glm/glm.hpp>
 
-extern bool initCloud;
-
 namespace viWidget {
 
 // Вот эти глобальные переменные пойдут в другую струтуру типо MainBar
