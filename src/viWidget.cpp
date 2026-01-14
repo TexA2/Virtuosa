@@ -1,8 +1,10 @@
 #include <viWidget.hpp>
 
-
-
 namespace viWidget {
+
+    bool show_BackroundColor = false;
+    bool show_pointColor = false;
+    bool buttonQuit = false;
 
     GLFWwindow* viMainWidget::initMainWindow()
     {
@@ -79,34 +81,30 @@ namespace viWidget {
     }
 
 
-
-
-
-
-
     void viMainWidget::resizeWindow(GLFWwindow* window, int width, int heigth)
     {
         glViewport(0, 0, width, heigth);
     }
 
+    void viMainWidget::ShowExampleAppMainMenuBar() {
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                ShowExampleMenuFile();
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+    }
 
-
-
-
-    bool show_BackroundColor = false;
-    bool show_pointColor = false;
-    bool cloudOpen = false;
-    int cloud_size = 0;
-
-    bool buttonQuit = false;
-
-    void ShowExampleMenuFile(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity)
-    {
+    void viMainWidget::ShowExampleMenuFile() {
         if (ImGui::MenuItem("New")) 
         { 
+            //TODO: Переделать
             // очищаем массив точек
-            pointPosition.clear();
-            initCloud = false;
+            //pointPosition.clear();
+            //initCloud = false;
         }
 
 
@@ -121,7 +119,7 @@ namespace viWidget {
             nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
             if (result == NFD_OKAY)
             {
-                pointCloudOpen(outPath, pointPosition, intensity);
+                viPointcloudOpen(outPath);
             }
             else if (result == NFD_CANCEL)
             {
@@ -141,71 +139,76 @@ namespace viWidget {
         if (ImGui::MenuItem("Point Color")) {   show_pointColor = true;}
         ImGui::Separator();
         if (ImGui::MenuItem("Quit", "Alt+F4")) {
-            // делаем завершение программы
             buttonQuit = true;
         }
     }
 
 
+    void viMainWidget::viPointcloudOpen(std::string path) {
 
-
-    void ShowExampleAppMainMenuBar(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity)
-    {
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                ShowExampleMenuFile(pointPosition, intensity);
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
-        }
-    }
-
-
-    void pointCloudOpen(std::string path, std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity){
-    // откроем pcd файл
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
-        
         pcl::io::loadPCDFile<pcl::PointXYZI>(path, *cloud);
 
-        cloud_size = cloud->width * cloud->height;
-
-        intensity.clear();
-
-
-        pointPosition.clear();
-        pointPosition.resize(cloud_size);
-
+        viCloud._cloud = cloud;
 
     // Запоминаем положение и интенсивность
         float min_i = std::numeric_limits<float>::max();
         float max_i = std::numeric_limits<float>::lowest();
 
-        for (uint i = 0; i < cloud_size; ++i)
+        for (uint i = 0; i < viCloud._cloud->size(); ++i)
         {
-            pointPosition[i] = glm::vec3(cloud->points[i].x, cloud->points[i].y, cloud->points[i].z);
-
             min_i = std::min(min_i, cloud->points[i].intensity);
             max_i = std::max(max_i, cloud->points[i].intensity);
         }
 
-        for (uint i = 0; i < cloud_size; ++i)
+        for (uint i = 0; i < viCloud._cloud->size(); ++i)
         {
-            float normalized_i = (cloud->points[i].intensity - min_i) / (max_i - min_i);  
+            float normalized_i = (viCloud._cloud->points[i].intensity - min_i) / (max_i - min_i);  
 
             float r, g, b;
             intensityToColor(normalized_i, r, g, b);
 
-            intensity.push_back(r);
-            intensity.push_back(g);
-            intensity.push_back(b);
-
+            viCloud.intensity.push_back(r);
+            viCloud.intensity.push_back(g);
+            viCloud.intensity.push_back(b);
         }
 
-        std::cout << "Razmer Cloud: "<< cloud_size << std::endl;
-        cloudOpen = true;
+        cloudBuffer();
+        viCloud.cloudOpen = true;
     }
+
+    void viMainWidget::cloudBuffer() {
+
+            glGenVertexArrays(1, &viCloud.VAO);
+            glGenBuffers(1, &viCloud.instanceVBO); 
+            glGenBuffers(1, &viCloud.intensityVBO);
+
+            glBindVertexArray(viCloud.VAO);
+
+
+            glBindBuffer(GL_ARRAY_BUFFER, viCloud.instanceVBO);
+            glBufferData(GL_ARRAY_BUFFER, viCloud._cloud->size() * sizeof(pcl::PointXYZI), viCloud._cloud->data(), GL_STATIC_DRAW);
+
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(pcl::PointXYZI), (void*)0);
+            glEnableVertexAttribArray(0);
+
+            glVertexAttribDivisor(0, 1); 
+
+
+            glBindBuffer(GL_ARRAY_BUFFER, viCloud.intensityVBO);
+            glBufferData(GL_ARRAY_BUFFER, viCloud.intensity.size() * sizeof(float), viCloud.intensity.data(), GL_STATIC_DRAW);
+
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(1);
+
+            glVertexAttribDivisor(1, 1);
+
+
+        //отвязка параметров чтоб случайно не изменить   
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindVertexArray(0);
+    }
+
 
     void intensityToColor(float intensity, float& r, float& g, float& b) {
         intensity = std::max(0.0f, std::min(1.0f, intensity));

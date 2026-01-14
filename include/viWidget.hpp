@@ -23,8 +23,24 @@ extern bool initCloud;
 
 namespace viWidget {
 
+// Вот эти глобальные переменные пойдут в другую струтуру типо MainBar
+    extern bool show_BackroundColor;
+    extern bool show_pointColor;
+    extern bool buttonQuit;
+
     class viMainWidget {
         public:
+            
+            struct CloudData {
+                pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud;
+                std::vector<float> intensity; 
+
+                GLuint VAO, instanceVBO;
+                GLuint intensityVBO;
+
+                bool cloudOpen = false;
+            };
+
             viMainWidget(): _width(1280), _height(1024) {};
             ~viMainWidget() = default;
 
@@ -33,7 +49,15 @@ namespace viWidget {
 
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
 
+            void viPointcloudOpen(std::string path);
+            void cloudBuffer();
 
+            void ShowExampleAppMainMenuBar();
+            void ShowExampleMenuFile();
+
+            //пока одиночная переменная, потом надо будет сделать, что то типо массива таких
+            // перемнных чтоб можно было много облаков одновременно открывать
+            CloudData viCloud;
         private:
             GLFWwindow* window;
 
@@ -42,20 +66,7 @@ namespace viWidget {
 
     };
 
-    
 
-    extern bool show_BackroundColor;
-    extern bool show_pointColor;
-    extern bool cloudOpen;
-    extern int cloud_size;
-
-    extern bool buttonQuit;
-
-
-    void ShowExampleMenuFile(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
-    void ShowExampleAppMainMenuBar(std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
-    
-    void pointCloudOpen(std::string path, std::vector<glm::vec3>& pointPosition, std::vector<float>& intensity);
     void intensityToColor(float intensity, float& r, float& g, float& b);
 }
 

@@ -56,11 +56,7 @@ float lastFrame = 0.0f; // время последнего кадра
 
 
 bool  initCloud = false;
-std::vector<float> intensity;  //(cloud_size * 3, 0.0f);
-std::vector<glm::vec3> pointPosition; // массив который содержит точки
 bool show_intensity_color = false;
-// bool buttonQuit = false;
-
 
 unsigned int framebuffer;
 unsigned int textureBuffer;
@@ -114,40 +110,6 @@ int main() {
     
     createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
 
-// настройка вершинных буферов
-    unsigned int VAO, instanceVBO;
-    unsigned int intensityVBO;
-
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &instanceVBO); 
-    glGenBuffers(1, &intensityVBO);
-
-    glBindVertexArray(VAO);
-
-
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, pointPosition.size() * sizeof(glm::vec3), pointPosition.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribDivisor(0, 1); 
-
-
-    glBindBuffer(GL_ARRAY_BUFFER, intensityVBO);
-    glBufferData(GL_ARRAY_BUFFER, intensity.size() * sizeof(float), intensity.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribDivisor(1, 1);
-
-
- //отвязка параметров чтоб случайно не изменить   
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-
     myShader::Shader First ("../shader/ver.vs", "../shader/fragment.fs");
 
     First.use();
@@ -178,6 +140,7 @@ int main() {
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    viewCamera.resetToZero();
 
 // ****Основной цикл****
     while (!glfwWindowShouldClose(window))
@@ -201,41 +164,13 @@ int main() {
         }
 
 
-        if(viWidget::cloudOpen)
+        if(MainWindow.viCloud.cloudOpen)
         {
-            if(!initCloud)
-            {
-                glBindVertexArray(VAO);
-                glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-                glBufferData(GL_ARRAY_BUFFER, pointPosition.size() * sizeof(glm::vec3), pointPosition.data(), GL_STATIC_DRAW);
-
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
-                glVertexAttribDivisor(0, 1); 
-
-
-                glBindBuffer(GL_ARRAY_BUFFER, intensityVBO);
-                glBufferData(GL_ARRAY_BUFFER, intensity.size() * sizeof(float), intensity.data(), GL_STATIC_DRAW);
-                
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(1);
-                glVertexAttribDivisor(1, 1);
-
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glBindVertexArray(0);
-                initCloud = true;
-
-                viewCamera.resetToZero();
-            }
             // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
             glViewport(0, 0, WIDTH, HEIGHT);
 
-            // // Очищаем буферы
-            // glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            // glClear(GL_COLOR_BUFFER_BIT);
-
-            glBindVertexArray(VAO);
+            glBindVertexArray(MainWindow.viCloud.VAO);
             
             view = viewCamera.moveCamera(window, deltaTime);
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -256,7 +191,7 @@ int main() {
                 glEnableVertexAttribArray(1);
                 glVertexAttribDivisor(1, 1);
             }
-            glDrawArraysInstanced(GL_POINTS, 0, 1, viWidget::cloud_size);
+            glDrawArraysInstanced(GL_POINTS, 0, 1, MainWindow.viCloud._cloud->size());
             glBindVertexArray(0);
             
             // glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -271,16 +206,12 @@ int main() {
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
 
-        // glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Устанавливаем цвет очистки
-        // glClear(GL_COLOR_BUFFER_BIT); //| GL_DEPTH_BUFFER_BIT);
-
-
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        viWidget::ShowExampleAppMainMenuBar(pointPosition, intensity);
+        MainWindow.ShowExampleAppMainMenuBar();
 
 
         if (viWidget::show_BackroundColor)
@@ -303,12 +234,10 @@ int main() {
             ImGui::End();
         }
 
-
-
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-                // 1. Получаем состояние мыши
+        // 1. Получаем состояние мыши
         ImGuiIO& io = ImGui::GetIO();
         bool mouseOverImGui = io.WantCaptureMouse;
         
