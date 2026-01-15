@@ -86,12 +86,18 @@ namespace viWidget {
         glViewport(0, 0, width, heigth);
     }
 
-    void viMainWidget::ShowExampleAppMainMenuBar() {
+    void viMainWidget::ShowExampleAppMainMenuBar(bool& projType) {
         if (ImGui::BeginMainMenuBar())
         {
             if (ImGui::BeginMenu("File"))
             {
                 ShowExampleMenuFile();
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Tools"))
+            {
+                if (ImGui::MenuItem("Projection")) { projType = !projType; }
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
@@ -101,9 +107,8 @@ namespace viWidget {
     void viMainWidget::ShowExampleMenuFile() {
         if (ImGui::MenuItem("New")) 
         { 
-            //TODO: Переделать
-            // очищаем массив точек
-            //pointPosition.clear();
+            viCloud._cloud->clear();
+            viCloud.cloudOpen = false;
         }
 
 
@@ -150,18 +155,12 @@ namespace viWidget {
         viCloud._cloud = cloud;
 
     // Запоминаем положение и интенсивность
-        float min_i = std::numeric_limits<float>::max();
-        float max_i = std::numeric_limits<float>::lowest();
+        calculateCloudBounds();
 
         for (uint i = 0; i < viCloud._cloud->size(); ++i)
         {
-            min_i = std::min(min_i, cloud->points[i].intensity);
-            max_i = std::max(max_i, cloud->points[i].intensity);
-        }
-
-        for (uint i = 0; i < viCloud._cloud->size(); ++i)
-        {
-            float normalized_i = (viCloud._cloud->points[i].intensity - min_i) / (max_i - min_i);  
+            float normalized_i = (viCloud._cloud->points[i].intensity - viCloud.cloudIntensityMin)
+                                 / (viCloud.cloudIntensityMax - viCloud.cloudIntensityMin);  
 
             float r, g, b;
             intensityToColor(normalized_i, r, g, b);
@@ -226,4 +225,23 @@ namespace viWidget {
         b = static_cast<uint8_t>(bf * 255);
     }
 
+
+    void viMainWidget::calculateCloudBounds() {
+        
+        for (const auto& p : viCloud._cloud->points) {
+            if (p.x < viCloud.cloudMinX) viCloud.cloudMinX = p.x;
+            if (p.x > viCloud.cloudMaxX) viCloud.cloudMaxX = p.x;
+            if (p.y < viCloud.cloudMinY) viCloud.cloudMinY = p.y;
+            if (p.y > viCloud.cloudMaxY) viCloud.cloudMaxY = p.y;
+            if (p.z < viCloud.cloudMinZ) viCloud.cloudMinZ = p.z;
+            if (p.z > viCloud.cloudMaxZ) viCloud.cloudMaxZ = p.z;
+
+            viCloud.cloudIntensityMin = std::min(viCloud.cloudIntensityMin, p.intensity);
+            viCloud.cloudIntensityMax = std::max(viCloud.cloudIntensityMax, p.intensity);
+        }
+    }
+
+
 }
+
+

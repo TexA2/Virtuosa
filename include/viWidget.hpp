@@ -36,6 +36,17 @@ namespace viWidget {
                 GLuint VAO, instanceVBO;
                 GLuint intensityVBO;
 
+                float cloudMinX = std::numeric_limits<float>::max(); 
+                float cloudMinY = std::numeric_limits<float>::max(); 
+                float cloudMinZ = std::numeric_limits<float>::max(); 
+
+                float cloudMaxX = std::numeric_limits<float>::lowest();
+                float cloudMaxY = std::numeric_limits<float>::lowest();
+                float cloudMaxZ = std::numeric_limits<float>::lowest();
+
+                float cloudIntensityMin = std::numeric_limits<float>::max();
+                float cloudIntensityMax = std::numeric_limits<float>::lowest();
+
                 bool cloudOpen = false;
             };
 
@@ -50,8 +61,10 @@ namespace viWidget {
             void viPointcloudOpen(std::string path);
             void cloudBuffer();
 
-            void ShowExampleAppMainMenuBar();
+            void ShowExampleAppMainMenuBar(bool& projType);
             void ShowExampleMenuFile();
+
+            void calculateCloudBounds();
 
             //пока одиночная переменная, потом надо будет сделать, что то типо массива таких
             // перемнных чтоб можно было много облаков одновременно открывать

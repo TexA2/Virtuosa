@@ -102,6 +102,10 @@ using namespace myShader;
         return result;
     }
 
-    void Shader::use() {
+    void Shader::bind() {
          glUseProgram(ID);
+    }
+
+    void Shader::unbind() {
+        glUseProgram(0);
     }

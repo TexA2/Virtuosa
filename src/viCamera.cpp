@@ -71,7 +71,9 @@ using namespace myCamera;
         }
 
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(*model));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+   
         return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     }
 
@@ -137,8 +139,8 @@ using namespace myCamera;
     }
 
     void Camera::setWindowSize(int width, int height){
-        this->width  = width;
-        this->height = height;
+        this->_width  = width;
+        this->_height = height;
     }
 
     void Camera::setXYPose(double xpos, double ypos){
@@ -146,10 +148,10 @@ using namespace myCamera;
         this->lastY = ypos;
     }
 
-    void Camera::setWorldModel(glm::mat4 *model, unsigned int modelLoc)
+    void Camera::setWorldModel(unsigned int modelLoc, unsigned int projectionLoc)
     {
-        this->model = model;
         this->modelLoc = modelLoc;
+        this->projectionLoc = projectionLoc;
     }
 
     void Camera::resetFirstMouse() { firstMouse = true; }
@@ -167,3 +169,24 @@ using namespace myCamera;
 
         this->currentOrient = glm::quat(1, 0, 0, 0);
     }
+
+    void Camera::setOrthoProjection() {
+            float centerX = (1.0f + 126.0f) / 2.0f; // 63.5
+            float centerY = centerX; // если координаты Y такие же
+            float scale = 10.f; // увеличивайте этот коэффициент для увеличения
+
+            projection= glm::ortho(
+                -float(_width)/2.0f / scale + centerX,    // left
+                float(_width)/2.0f / scale + centerX,     // right
+                -float(_height)/2.0f / scale + centerY,   // bottom
+                float(_height)/2.0f / scale + centerY,    // top
+                0.000001f,                                    // near
+                100000.0f                                  // far
+            );
+    } 
+
+    void Camera::setPerspectiveProjection() {
+        projection = glm::perspective(glm::radians(75.f),
+                                      float(_width) / float(_height),
+                                      0.1f, 1000.f);
+    } 

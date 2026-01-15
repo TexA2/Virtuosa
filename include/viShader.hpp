@@ -16,7 +16,8 @@ namespace myShader {
             Shader(const char* vertexPath, const char* fragmentPath);
             ~Shader() = default;
 
-            void use();
+            void bind();
+            void unbind();
             unsigned int ID; // ShaderProgramm ID
             
         private:

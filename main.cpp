@@ -45,12 +45,11 @@ void*                               GImGuiDemoMarkerCallbackUserData = NULL;
 
 
 
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+ImVec4 clear_color = ImVec4(0.25f, 0.4f, 0.48f, 1.00f);
 ImVec4 point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
 
 
-
-myCamera::Camera viewCamera;
+myCamera::Camera viewCamera(WIDTH, HEIGHT);
 float deltaTime = 0.0f;	// время между текущим и последним кадрами
 float lastFrame = 0.0f; // время последнего кадра
 
@@ -110,28 +109,17 @@ int main() {
 
     myShader::Shader First ("../shader/ver.vs", "../shader/fragment.fs");
 
-    First.use();
-
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.f);
-
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(75.f), float(WIDTH) / float(HEIGHT), 0.1f, 1000.f);
-    //projection = glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), 0.1f, 1000.0f);
-
+    First.bind();
 
     unsigned int modelLoc = glGetUniformLocation(First.ID, "model");
     unsigned int viewLoc = glGetUniformLocation(First.ID, "view");
     unsigned int projectionLoc = glGetUniformLocation(First.ID, "projection");
-    unsigned int colorLoc = glGetUniformLocation(First.ID, "ourColor");
 
+    
+    unsigned int colorLoc = glGetUniformLocation(First.ID, "ourColor");
     unsigned int useIntensityColorLoc = glGetUniformLocation(First.ID, "useIntensityColor");
 
-
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-    viewCamera.setWorldModel(&model, modelLoc);    
+    viewCamera.setWorldModel(modelLoc, projectionLoc);   
 
     double lastTime = glfwGetTime();
     int frameCount = 0;
@@ -148,6 +136,11 @@ int main() {
 
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w); // Устанавливаем цвет очистки
         glClear(GL_COLOR_BUFFER_BIT); //| GL_DEPTH_BUFFER_BIT);
+
+        if(viewCamera.projPerspective)
+            viewCamera.setPerspectiveProjection();
+        else
+            viewCamera.setOrthoProjection();
 
 
         float currentFrame = glfwGetTime();
@@ -170,8 +163,7 @@ int main() {
 
             glBindVertexArray(MainWindow.viCloud.VAO);
             
-            view = viewCamera.moveCamera(window, deltaTime);
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewCamera.moveCamera(window, deltaTime)));
 
             if (!show_intensity_color)
             {
@@ -204,12 +196,12 @@ int main() {
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
 
-        // Start the Dear ImGui frame
+// Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        MainWindow.ShowExampleAppMainMenuBar();
+        MainWindow.ShowExampleAppMainMenuBar(viewCamera.projPerspective);
 
 
         if (viWidget::show_BackroundColor)
