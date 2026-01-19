@@ -20,22 +20,41 @@ namespace viWidget {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        window = glfwCreateWindow(_windowSettings.width,
-                                  _windowSettings.height,
-                                  _windowSettings.title.c_str(), NULL, NULL);
+        // window = glfwCreateWindow(_windowSettings.width,
+        //                           _windowSettings.height,
+        //                           _windowSettings.title.c_str(), NULL, NULL);
 
-        if (!window)
+        GLFWwindow* rawWindow = glfwCreateWindow(
+                                _windowSettings.width,
+                                _windowSettings.height,
+                                _windowSettings.title.c_str(), 
+                                NULL, 
+                                NULL
+                                );
+
+
+        window = std::shared_ptr<GLFWwindow>(
+                                        rawWindow,
+                                        [](GLFWwindow* w) {
+                                            if (w) {
+                                                glfwDestroyWindow(w);
+                                            }
+                                        }
+                                    );
+
+
+        if (!window.get())
         {
             std::cerr << "Failed to open GLFW window\n";
             glfwTerminate();
             return nullptr;
         }
 
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(window.get());
 
-        glfwSetFramebufferSizeCallback(window, resizeWindow);
+        glfwSetFramebufferSizeCallback(window.get(), resizeWindow);
 
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         // ИНИЦИАЛИЗАЦИЯ GLAD
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -52,7 +71,7 @@ namespace viWidget {
 
         glViewport(0, 0, _windowSettings.width, _windowSettings.height);
 
-        return window;
+        return window.get();
     }
 
     void viMainWidget::initGui()
@@ -76,7 +95,7 @@ namespace viWidget {
         style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
 
         // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
 
         const char* glsl_version = "#version 450";
 
@@ -246,13 +265,21 @@ namespace viWidget {
 
 
     void viMainWidget::initCamera() {
-        viewCamera = (new viCamera::Camera(_windowSettings.width, _windowSettings.height));
-        glfwSetWindowUserPointer(window, viewCamera);
-        glfwSetScrollCallback(window, viCamera::Camera::mouseScrollCallback);
+        viewCamera = std::make_shared<viCamera::Camera>(_windowSettings.width, _windowSettings.height);
+        glfwSetWindowUserPointer(window.get(), viewCamera.get());
+        glfwSetScrollCallback(window.get(), viCamera::Camera::mouseScrollCallback);
     }
 
-    viCamera::Camera* viMainWidget::getCamera() {
+    std::shared_ptr<viCamera::Camera> viMainWidget::getCamera() const{
         return viewCamera;
+    }
+
+    void viMainWidget::initShader() {
+        cloudShader = std::make_shared<viShader::Shader>("../shader/ver.vs", "../shader/fragment.fs");
+    }
+
+    std::shared_ptr<viShader::Shader> viMainWidget::getShader() const {
+        return cloudShader;
     }
 
 
