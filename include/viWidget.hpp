@@ -19,6 +19,7 @@
 #include <pcl/point_types.h>
 
 #include <viCamera.hpp>
+#include <viShader.hpp>
 
 namespace viWidget {
 
@@ -36,33 +37,33 @@ namespace viWidget {
     };
 
     struct RenderSettings {
-        struct ClearColor {
-            float r = 0.25f;
-            float g = 0.4f;
-            float b = 0.48f;
-            float a = 1.0f;
-        } clearColor;
-        
-        struct PointCloud {
-            struct ColorMode {
-                bool useIntensity = false;
-                glm::vec4 uniformColor = {1.0f, 1.0f, 0.0f, 1.0f};
-            } colorMode;
+            struct ClearColor {
+                float r = 0.25f;
+                float g = 0.4f;
+                float b = 0.48f;
+                float a = 1.0f;
+            } clearColor;
             
-            float pointSize = 2.0f;
-            bool showBoundingBox = false;
-        } pointCloud;
-        
-        struct Camera {
-            float fov = 75.0f;
-            float nearPlane = 0.1f;
-            float farPlane = 1000.0f;
-            bool usePerspective = true;
-        } camera;
+            struct PointCloud {
+                struct ColorMode {
+                    bool useIntensity = false;
+                    glm::vec4 uniformColor = {1.0f, 1.0f, 0.0f, 1.0f};
+                } colorMode;
+                
+                float pointSize = 2.0f;
+                bool showBoundingBox = false;
+            } pointCloud;
+            
+            struct Camera {
+                float fov = 75.0f;
+                float nearPlane = 0.1f;
+                float farPlane = 1000.0f;
+                bool usePerspective = true;
+            } camera;
     };
 
 
-    struct CloudData {
+    struct CloudData { // перепишем потом структуру
         pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud;
         std::vector<float> intensity;
         GLuint VAO, instanceVBO;
@@ -84,6 +85,11 @@ namespace viWidget {
     extern bool show_pointColor;
     extern bool buttonQuit;
 
+
+// ============================================================================
+// ОПИСАНИЕ КЛАССА
+// ===========================================================================
+
     class viMainWidget {
         public:
 
@@ -93,45 +99,44 @@ namespace viWidget {
             viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings) {
                 viewCamera = nullptr;
                 window = nullptr;
+                cloudShader = nullptr;
             };
 
-            ~viMainWidget()
-            {
-                if (viewCamera)
-                    delete viewCamera;
+            ~viMainWidget() = default;
 
-                if (window)
-                    glfwDestroyWindow(window);
-            };
+            //void initialize(); // запихаю сюда все функциии c именем init
 
             GLFWwindow* initMainWindow();
             void initCamera();
             void initGui();
+            void initShader();
 
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
 
-            void viPointcloudOpen(std::string path);
-            void cloudBuffer();
+            
+            void viPointcloudOpen(std::string path); // в менеджер
+            void cloudBuffer();                     // в менеджер
+            void calculateCloudBounds();            // в менеджер
 
-            void ShowExampleAppMainMenuBar(bool& projType);
-            void ShowExampleMenuFile();
+            void ShowExampleAppMainMenuBar(bool& projType);  //в UI
+            void ShowExampleMenuFile();                     // в UI
 
-            void calculateCloudBounds();
-
-            viCamera::Camera* getCamera();
+            std::shared_ptr<viCamera::Camera> getCamera() const;
+            std::shared_ptr<viShader::Shader> getShader() const;
 
             //пока одиночная переменная, потом надо будет сделать, что то типо массива таких
             // перемнных чтоб можно было много облаков одновременно открывать
             CloudData viCloud;
         private:
-            GLFWwindow* window;
-            viCamera::Camera* viewCamera;
+            std::shared_ptr<GLFWwindow> window;
+            std::shared_ptr<viCamera::Camera> viewCamera;
+            std::shared_ptr<viShader::Shader> cloudShader;
 
             WindowSettings _windowSettings;
     };
 
 
-    void intensityToColor(float intensity, float& r, float& g, float& b);
+    void intensityToColor(float intensity, float& r, float& g, float& b); // в менеджер
 }
 
 #endif

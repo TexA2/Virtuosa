@@ -12,8 +12,6 @@
 #include <thread>
 #include <chrono> 
 
-
-#include <viShader.hpp>
 #include <viWidget.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -90,20 +88,19 @@ int main() {
 
     MainWindow.initGui();
     MainWindow.initCamera();
+    MainWindow.initShader();
     
     createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
 
-    myShader::Shader First ("../shader/ver.vs", "../shader/fragment.fs");
+    MainWindow.getShader()->bind();
 
-    First.bind();
-
-    unsigned int modelLoc = glGetUniformLocation(First.ID, "model");
-    unsigned int viewLoc = glGetUniformLocation(First.ID, "view");
-    unsigned int projectionLoc = glGetUniformLocation(First.ID, "projection");
+    unsigned int modelLoc = glGetUniformLocation(MainWindow.getShader()->ID, "model");
+    unsigned int viewLoc = glGetUniformLocation(MainWindow.getShader()->ID, "view");
+    unsigned int projectionLoc = glGetUniformLocation(MainWindow.getShader()->ID, "projection");
 
     
-    unsigned int colorLoc = glGetUniformLocation(First.ID, "ourColor");
-    unsigned int useIntensityColorLoc = glGetUniformLocation(First.ID, "useIntensityColor");
+    unsigned int colorLoc = glGetUniformLocation(MainWindow.getShader()->ID, "ourColor");
+    unsigned int useIntensityColorLoc = glGetUniformLocation(MainWindow.getShader()->ID, "useIntensityColor");
 
     MainWindow.getCamera()->setWorldModel(modelLoc, projectionLoc);   
 
@@ -237,7 +234,7 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glfwDestroyWindow(window);
+    //glfwDestroyWindow(window); вроде не нужно, так как на shared_ptr переписал
 
     glfwTerminate();
     return 0;

@@ -10,7 +10,7 @@
 #include <iostream>
 //#include <format>
 
-namespace myShader {
+namespace viShader {
     class Shader{
         public:
             Shader(const char* vertexPath, const char* fragmentPath);

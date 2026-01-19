@@ -1,6 +1,6 @@
 #include <viShader.hpp>
 
-using namespace myShader;
+using namespace viShader;
 
     Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     
