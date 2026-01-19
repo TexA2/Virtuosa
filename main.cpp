@@ -14,7 +14,6 @@
 
 
 #include <viShader.hpp>
-#include <viCamera.hpp>
 #include <viWidget.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -111,8 +110,6 @@ int main() {
     double lastTime = glfwGetTime();
     int frameCount = 0;
 
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
     MainWindow.getCamera()->resetToZero();
 
 // ****Основной цикл****
@@ -120,15 +117,8 @@ int main() {
     {
         glfwPollEvents();
 
-
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w); // Устанавливаем цвет очистки
         glClear(GL_COLOR_BUFFER_BIT); //| GL_DEPTH_BUFFER_BIT);
-
-        if(MainWindow.getCamera()->projPerspective)
-            MainWindow.getCamera()->setPerspectiveProjection();
-        else
-            MainWindow.getCamera()->setOrthoProjection();
-
 
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
@@ -136,12 +126,15 @@ int main() {
             continue;
         }
 
+        if(MainWindow.getCamera()->projPerspective)
+            MainWindow.getCamera()->setPerspectiveProjection();
+        else
+            MainWindow.getCamera()->setOrthoProjection();
+
 
         if(MainWindow.viCloud.cloudOpen)
         {
             // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-            glViewport(0, 0, WIDTH, HEIGHT);
 
             glBindVertexArray(MainWindow.viCloud.VAO);
             
@@ -173,11 +166,6 @@ int main() {
             // glDrawArraysInstanced(GL_POINTS, 0, 1,cloud_size);
         }
 
-
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-
 // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -189,9 +177,7 @@ int main() {
         if (viWidget::show_BackroundColor)
         {
             ImGui::Begin("Background Color Render", &viWidget::show_BackroundColor);
-            
             ImGui::ColorEdit3("clear color", (float*)&clear_color);
-
             ImGui::End();
         }
 
@@ -199,11 +185,13 @@ int main() {
         if(viWidget::show_pointColor)
         {
             ImGui::Begin("Point Cloud COlor Render", &viWidget::show_pointColor);
-            
             ImGui::ColorEdit3("clear color", (float*)&point_color);
             ImGui::Checkbox("Intensity", &show_intensity_color);  
-
             ImGui::End();
+        }
+
+        if(viWidget::buttonQuit) {
+            glfwSetWindowShouldClose(window, true);
         }
 
         ImGui::Render();
@@ -241,10 +229,6 @@ int main() {
             std::cout << "FPS: " << frameCount << std::endl;
             frameCount = 0;
             lastTime = currentTime;
-        }
-    
-        if(viWidget::buttonQuit) {
-            glfwSetWindowShouldClose(window, true);
         }
     }
 

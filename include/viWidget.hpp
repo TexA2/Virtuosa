@@ -52,7 +52,14 @@ namespace viWidget {
                 window = nullptr;
             };
 
-            ~viMainWidget() = default;
+            ~viMainWidget()
+            {
+                if (viewCamera)
+                    delete viewCamera;
+
+                if (window)
+                    glfwDestroyWindow(window);
+            };
 
             GLFWwindow* initMainWindow();
             void initCamera();
