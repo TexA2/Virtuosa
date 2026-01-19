@@ -5,19 +5,27 @@ OpenGL point cloud renderer.
 ## 🚀 Quick Start
 
 ### Clone repository
+```bash
 git clone --recursive https://github.com/TexA2/Virtuosa.git
 cd Virtuosa
+```
 
 ### Install dependencies (Ubuntu/Debian)
+```bash
 sudo apt-get install libglfw3-dev libglm-dev libpcl-dev libgtk-3-dev
+```
 
 ### Build
+```bash
 mkdir build && cd build
 cmake ..
 make
+```
 
 ### Run
-./Virtuosa
+```bash
+./main
+```
 
 ## Camera Controls
 
