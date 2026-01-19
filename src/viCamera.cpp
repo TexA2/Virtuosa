@@ -9,16 +9,20 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 
-using namespace myCamera;
+using namespace viCamera;
 
 
-    void Camera::zoomCamera(double yoffset, float deltaTime){
+    void Camera::zoomCamera(double yoffset){
         float zoomSpeed = 150.0f * deltaTime;
 
         cameraPos += cameraFront * (float)yoffset * zoomSpeed;
     }
 
-    glm::mat4 Camera::moveCamera(GLFWwindow *window, float deltaTime){
+    glm::mat4 Camera::moveCamera(GLFWwindow *window){
+
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;  
 
         float cameraSpeed = 30.5f * deltaTime;
         float rollSpeed = 90.0f * deltaTime; // Скорость вращения в градусах в секунду
@@ -190,3 +194,18 @@ using namespace myCamera;
                                       float(_width) / float(_height),
                                       0.1f, 1000.f);
     } 
+
+
+    void Camera::mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+       
+        Camera* camera = static_cast<Camera*>(glfwGetWindowUserPointer(window));
+        
+        if (camera)
+        {
+            float currentFrame = glfwGetTime();
+            camera->deltaTime = currentFrame - camera->lastFrame;
+            camera->lastFrame = currentFrame;  
+
+            camera->zoomCamera(yoffset);
+        }
+    }    

@@ -44,14 +44,8 @@ void*                               GImGuiDemoMarkerCallbackUserData = NULL;
 #define IMGUI_DEMO_MARKER(section)  do { if (GImGuiDemoMarkerCallback != NULL) GImGuiDemoMarkerCallback("imgui_demo.cpp", __LINE__, section, GImGuiDemoMarkerCallbackUserData); } while (0)
 
 
-
 ImVec4 clear_color = ImVec4(0.25f, 0.4f, 0.48f, 1.00f);
 ImVec4 point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
-
-
-myCamera::Camera viewCamera(WIDTH, HEIGHT);
-float deltaTime = 0.0f;	// время между текущим и последним кадрами
-float lastFrame = 0.0f; // время последнего кадра
 
 bool show_intensity_color = false;
 
@@ -82,14 +76,10 @@ void createFrameBuffer() {
 }
 
 
-void mouseScrollCallbacl(GLFWwindow* window, double xoffset, double yoffset){
-    viewCamera.zoomCamera(yoffset, deltaTime);
-}
-
 
 int main() {
 
-    viWidget::viMainWidget MainWindow;
+    viWidget::viMainWidget MainWindow(WIDTH,HEIGHT);
     
     GLFWwindow* window = MainWindow.initMainWindow();
 
@@ -99,11 +89,8 @@ int main() {
         return -1;
     }
 
-    // придумать, как запихать эти колбеки гармонично
-    glfwSetWindowUserPointer(window, &viewCamera);
-    glfwSetScrollCallback(window, mouseScrollCallbacl);
-
     MainWindow.initGui();
+    MainWindow.initCamera();
     
     createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
 
@@ -119,14 +106,14 @@ int main() {
     unsigned int colorLoc = glGetUniformLocation(First.ID, "ourColor");
     unsigned int useIntensityColorLoc = glGetUniformLocation(First.ID, "useIntensityColor");
 
-    viewCamera.setWorldModel(modelLoc, projectionLoc);   
+    MainWindow.getCamera()->setWorldModel(modelLoc, projectionLoc);   
 
     double lastTime = glfwGetTime();
     int frameCount = 0;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    viewCamera.resetToZero();
+    MainWindow.getCamera()->resetToZero();
 
 // ****Основной цикл****
     while (!glfwWindowShouldClose(window))
@@ -137,15 +124,10 @@ int main() {
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w); // Устанавливаем цвет очистки
         glClear(GL_COLOR_BUFFER_BIT); //| GL_DEPTH_BUFFER_BIT);
 
-        if(viewCamera.projPerspective)
-            viewCamera.setPerspectiveProjection();
+        if(MainWindow.getCamera()->projPerspective)
+            MainWindow.getCamera()->setPerspectiveProjection();
         else
-            viewCamera.setOrthoProjection();
-
-
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;  
+            MainWindow.getCamera()->setOrthoProjection();
 
 
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
@@ -163,7 +145,7 @@ int main() {
 
             glBindVertexArray(MainWindow.viCloud.VAO);
             
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewCamera.moveCamera(window, deltaTime)));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(MainWindow.getCamera()->moveCamera(window)));
 
             if (!show_intensity_color)
             {
@@ -201,7 +183,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        MainWindow.ShowExampleAppMainMenuBar(viewCamera.projPerspective);
+        MainWindow.ShowExampleAppMainMenuBar(MainWindow.getCamera()->projPerspective);
 
 
         if (viWidget::show_BackroundColor)
@@ -243,8 +225,8 @@ int main() {
             {
                     double xpos, ypos;
                     glfwGetCursorPos(window, &xpos, &ypos);
-                    viewCamera.mouseMoveCallback(window,  xpos,  ypos);
-            } else { viewCamera.resetFirstMouse(); }
+                    MainWindow.getCamera()->mouseMoveCallback(window,  xpos,  ypos);
+            } else { MainWindow.getCamera()->resetFirstMouse(); }
         }
 
 

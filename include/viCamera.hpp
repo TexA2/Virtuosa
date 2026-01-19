@@ -8,9 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-namespace myCamera {
-
-
+namespace viCamera {
     enum class projectType : bool {Perspective , Ortho};
 
     class Camera{
@@ -36,20 +34,21 @@ namespace myCamera {
                 //setOrthoProjection();
                 setPerspectiveProjection();
                 projPerspective = true;
+
+
+                deltaTime = 0.0f;
+                lastFrame = 0.0f;
             }
 
             ~Camera() = default;
 
-            glm::mat4 moveCamera(GLFWwindow *window, float deltaTime);
-            void zoomCamera(double yoffset, float deltaTime);
+            glm::mat4 moveCamera(GLFWwindow *window);
+            void zoomCamera(double yoffset);
             void processMouseMovement(double xpos, double ypos);
             void setWindowSize(int width, int height);
             void setXYPose(double xpos, double ypos);
             void setWorldModel(unsigned int modelLoc, unsigned int projectionLoc);
             void resetFirstMouse();
-     static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
-     static void mouseZoomCallback(double xpos, double ypos);
-
             void resetToZero();
             void setOrthoProjection();
             void setPerspectiveProjection();
@@ -58,6 +57,12 @@ namespace myCamera {
             glm::mat4 model;
             glm::mat4 projection;
             bool projPerspective;
+
+//Call-back func
+     static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
+     static void mouseZoomCallback(double xpos, double ypos);
+     static void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+     
         private:
             glm::vec3 cameraPos;        // положение камеры
             glm::vec3 cameraFront;      // вектор направления камеры (направление к цели)
@@ -84,6 +89,10 @@ namespace myCamera {
             float lastY;
 
             glm::quat currentOrient;
+
+
+            float deltaTime;	// время между текущим и последним кадрами
+            float lastFrame; // время последнего кадра
     };
 }
 

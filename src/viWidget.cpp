@@ -1,5 +1,6 @@
 #include <viWidget.hpp>
 
+
 namespace viWidget {
 
     bool show_BackroundColor = false;
@@ -239,6 +240,17 @@ namespace viWidget {
             viCloud.cloudIntensityMin = std::min(viCloud.cloudIntensityMin, p.intensity);
             viCloud.cloudIntensityMax = std::max(viCloud.cloudIntensityMax, p.intensity);
         }
+    }
+
+
+    void viMainWidget::initCamera() {
+        viewCamera = (new viCamera::Camera(_width, _height));
+        glfwSetWindowUserPointer(window, viewCamera);
+        glfwSetScrollCallback(window, viCamera::Camera::mouseScrollCallback);
+    }
+
+    viCamera::Camera* viMainWidget::getCamera() {
+        return viewCamera;
     }
 
 
