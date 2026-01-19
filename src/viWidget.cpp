@@ -129,6 +129,7 @@ namespace viWidget {
     void viMainWidget::ShowExampleMenuFile() {
         if (ImGui::MenuItem("New")) 
         { 
+            //TODO: поченить после изменений
             //viCloud._cloud->clear();
             //viCloud.cloudOpen = false;
         }
