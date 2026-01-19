@@ -28,7 +28,7 @@ make
 ./main
 ```
 
-## 🎮 Camera Controls
+## 🎮 Camera Controls for perspective projection
 
 **Rotation:**
 - 🖱️ Mouse drag — Pitch/Yaw (look around)
