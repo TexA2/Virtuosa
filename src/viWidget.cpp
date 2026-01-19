@@ -129,8 +129,8 @@ namespace viWidget {
     void viMainWidget::ShowExampleMenuFile() {
         if (ImGui::MenuItem("New")) 
         { 
-            viCloud._cloud->clear();
-            viCloud.cloudOpen = false;
+            //viCloud._cloud->clear();
+            //viCloud.cloudOpen = false;
         }
 
 
@@ -145,7 +145,7 @@ namespace viWidget {
             nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
             if (result == NFD_OKAY)
             {
-                viPointcloudOpen(outPath);
+                cloudData->pointCloudOpen(outPath);
             }
             else if (result == NFD_CANCEL)
             {
@@ -168,102 +168,6 @@ namespace viWidget {
         }
     }
 
-
-    void viMainWidget::viPointcloudOpen(std::string path) {
-
-        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
-        pcl::io::loadPCDFile<pcl::PointXYZI>(path, *cloud);
-
-        viCloud._cloud = cloud;
-
-    // Запоминаем положение и интенсивность
-        calculateCloudBounds();
-
-        for (uint i = 0; i < viCloud._cloud->size(); ++i)
-        {
-            float normalized_i = (viCloud._cloud->points[i].intensity - viCloud.cloudIntensityMin)
-                                 / (viCloud.cloudIntensityMax - viCloud.cloudIntensityMin);  
-
-            float r, g, b;
-            intensityToColor(normalized_i, r, g, b);
-
-            viCloud.intensity.push_back(r);
-            viCloud.intensity.push_back(g);
-            viCloud.intensity.push_back(b);
-        }
-
-        cloudBuffer();
-        viCloud.cloudOpen = true;
-    }
-
-    void viMainWidget::cloudBuffer() {
-
-            glGenVertexArrays(1, &viCloud.VAO);
-            glGenBuffers(1, &viCloud.instanceVBO); 
-            glGenBuffers(1, &viCloud.intensityVBO);
-
-            glBindVertexArray(viCloud.VAO);
-
-
-            glBindBuffer(GL_ARRAY_BUFFER, viCloud.instanceVBO);
-            glBufferData(GL_ARRAY_BUFFER, viCloud._cloud->size() * sizeof(pcl::PointXYZI), viCloud._cloud->data(), GL_STATIC_DRAW);
-
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(pcl::PointXYZI), (void*)0);
-            glEnableVertexAttribArray(0);
-
-            glVertexAttribDivisor(0, 1); 
-
-
-            glBindBuffer(GL_ARRAY_BUFFER, viCloud.intensityVBO);
-            glBufferData(GL_ARRAY_BUFFER, viCloud.intensity.size() * sizeof(float), viCloud.intensity.data(), GL_STATIC_DRAW);
-
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(1);
-
-            glVertexAttribDivisor(1, 1);
-
-
-        //отвязка параметров чтоб случайно не изменить   
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-    }
-
-
-    void intensityToColor(float intensity, float& r, float& g, float& b) {
-        intensity = std::max(0.0f, std::min(1.0f, intensity));
-        
-        float r4 = 4.0f * intensity;
-        
-        float rf = std::min(r4 - 1.5f, -r4 + 4.5f);
-        float gf = std::min(r4 - 0.5f, -r4 + 3.5f);
-        float bf = std::min(r4 + 0.5f, -r4 + 2.5f);
-        
-        rf = std::max(0.0f, std::min(1.0f, rf));
-        gf = std::max(0.0f, std::min(1.0f, gf));
-        bf = std::max(0.0f, std::min(1.0f, bf));
-        
-        r = static_cast<uint8_t>(rf * 255);
-        g = static_cast<uint8_t>(gf * 255);
-        b = static_cast<uint8_t>(bf * 255);
-    }
-
-
-    void viMainWidget::calculateCloudBounds() {
-        
-        for (const auto& p : viCloud._cloud->points) {
-            if (p.x < viCloud.cloudMinX) viCloud.cloudMinX = p.x;
-            if (p.x > viCloud.cloudMaxX) viCloud.cloudMaxX = p.x;
-            if (p.y < viCloud.cloudMinY) viCloud.cloudMinY = p.y;
-            if (p.y > viCloud.cloudMaxY) viCloud.cloudMaxY = p.y;
-            if (p.z < viCloud.cloudMinZ) viCloud.cloudMinZ = p.z;
-            if (p.z > viCloud.cloudMaxZ) viCloud.cloudMaxZ = p.z;
-
-            viCloud.cloudIntensityMin = std::min(viCloud.cloudIntensityMin, p.intensity);
-            viCloud.cloudIntensityMax = std::max(viCloud.cloudIntensityMax, p.intensity);
-        }
-    }
-
-
     void viMainWidget::initCamera() {
         viewCamera = std::make_shared<viCamera::Camera>(_windowSettings.width, _windowSettings.height);
         glfwSetWindowUserPointer(window.get(), viewCamera.get());
@@ -282,6 +186,14 @@ namespace viWidget {
         return cloudShader;
     }
 
+
+    void viMainWidget::initCloudData() {
+        cloudData = std::make_shared<viData::viManageData>();
+    }
+
+    std::shared_ptr<viData::viManageData> viMainWidget::getCloudData() {
+        return cloudData;
+    }
 
 }
 

@@ -20,6 +20,7 @@
 
 #include <viCamera.hpp>
 #include <viShader.hpp>
+#include <viData.hpp>
 
 namespace viWidget {
 
@@ -63,23 +64,6 @@ namespace viWidget {
     };
 
 
-    struct CloudData { // перепишем потом структуру
-        pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud;
-        std::vector<float> intensity;
-        GLuint VAO, instanceVBO;
-        GLuint intensityVBO;
-        float cloudMinX = std::numeric_limits<float>::max(); 
-        float cloudMinY = std::numeric_limits<float>::max(); 
-        float cloudMinZ = std::numeric_limits<float>::max();
-        float cloudMaxX = std::numeric_limits<float>::lowest();
-        float cloudMaxY = std::numeric_limits<float>::lowest();
-        float cloudMaxZ = std::numeric_limits<float>::lowest();
-        float cloudIntensityMin = std::numeric_limits<float>::max();
-        float cloudIntensityMax = std::numeric_limits<float>::lowest();
-        bool cloudOpen = false;
-    };
-
-
 // Вот эти глобальные переменные пойдут в другую струтуру типо MainBar
     extern bool show_BackroundColor;
     extern bool show_pointColor;
@@ -100,6 +84,7 @@ namespace viWidget {
                 viewCamera = nullptr;
                 window = nullptr;
                 cloudShader = nullptr;
+                cloudData= nullptr;
             };
 
             ~viMainWidget() = default;
@@ -110,33 +95,26 @@ namespace viWidget {
             void initCamera();
             void initGui();
             void initShader();
+            void initCloudData();
 
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
 
-            
-            void viPointcloudOpen(std::string path); // в менеджер
-            void cloudBuffer();                     // в менеджер
-            void calculateCloudBounds();            // в менеджер
-
             void ShowExampleAppMainMenuBar(bool& projType);  //в UI
-            void ShowExampleMenuFile();                     // в UI
+            void ShowExampleMenuFile();                      // в UI
 
             std::shared_ptr<viCamera::Camera> getCamera() const;
             std::shared_ptr<viShader::Shader> getShader() const;
+            std::shared_ptr<viData::viManageData> getCloudData();
 
-            //пока одиночная переменная, потом надо будет сделать, что то типо массива таких
-            // перемнных чтоб можно было много облаков одновременно открывать
-            CloudData viCloud;
         private:
             std::shared_ptr<GLFWwindow> window;
             std::shared_ptr<viCamera::Camera> viewCamera;
             std::shared_ptr<viShader::Shader> cloudShader;
+            std::shared_ptr<viData::viManageData> cloudData;
+            
 
             WindowSettings _windowSettings;
     };
-
-
-    void intensityToColor(float intensity, float& r, float& g, float& b); // в менеджер
 }
 
 #endif

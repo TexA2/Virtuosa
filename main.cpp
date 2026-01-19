@@ -89,6 +89,7 @@ int main() {
     MainWindow.initGui();
     MainWindow.initCamera();
     MainWindow.initShader();
+    MainWindow.initCloudData();
     
     createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
 
@@ -129,11 +130,11 @@ int main() {
             MainWindow.getCamera()->setOrthoProjection();
 
 
-        if(MainWindow.viCloud.cloudOpen)
+        if(MainWindow.getCloudData()->viCloud._cloud)
         {
             // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-            glBindVertexArray(MainWindow.viCloud.VAO);
+            glBindVertexArray(MainWindow.getCloudData()->viCloud.buffer.VAO);
             
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(MainWindow.getCamera()->moveCamera(window)));
 
@@ -153,7 +154,7 @@ int main() {
                 glEnableVertexAttribArray(1);
                 glVertexAttribDivisor(1, 1);
             }
-            glDrawArraysInstanced(GL_POINTS, 0, 1, MainWindow.viCloud._cloud->size());
+            glDrawArraysInstanced(GL_POINTS, 0, 1,   MainWindow.getCloudData()->viCloud._cloud->size());
             glBindVertexArray(0);
             
             // glBindFramebuffer(GL_FRAMEBUFFER, 0);
