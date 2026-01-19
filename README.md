@@ -17,10 +17,11 @@ sudo apt-get install libglfw3-dev libglm-dev libpcl-dev libgtk-3-dev
 
 ### 🔨 Build
 ```bash
-mkdir build && cd build
-cmake ..
+cmake -B build .
+cd build
 make
 ```
+
 
 ### Run
 ```bash
