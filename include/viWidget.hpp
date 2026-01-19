@@ -22,10 +22,45 @@
 
 namespace viWidget {
 
-// Вот эти глобальные переменные пойдут в другую струтуру типо MainBar
-    extern bool show_BackroundColor;
-    extern bool show_pointColor;
-    extern bool buttonQuit;
+
+// ============================================================================
+// НАСТРОЙКИ И КОНФИГУРАЦИЯ
+// ===========================================================================
+    struct WindowSettings {
+        int width = 1280;
+        int height = 1024;
+        std::string title = "Virtuosa Point Cloud Viewer";
+        bool fullscreen = false;
+        bool vsync = false;
+        int msaaSamples = 4;
+    };
+
+    struct RenderSettings {
+        struct ClearColor {
+            float r = 0.25f;
+            float g = 0.4f;
+            float b = 0.48f;
+            float a = 1.0f;
+        } clearColor;
+        
+        struct PointCloud {
+            struct ColorMode {
+                bool useIntensity = false;
+                glm::vec4 uniformColor = {1.0f, 1.0f, 0.0f, 1.0f};
+            } colorMode;
+            
+            float pointSize = 2.0f;
+            bool showBoundingBox = false;
+        } pointCloud;
+        
+        struct Camera {
+            float fov = 75.0f;
+            float nearPlane = 0.1f;
+            float farPlane = 1000.0f;
+            bool usePerspective = true;
+        } camera;
+    };
+
 
     struct CloudData {
         pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud;
@@ -44,10 +79,18 @@ namespace viWidget {
     };
 
 
+// Вот эти глобальные переменные пойдут в другую струтуру типо MainBar
+    extern bool show_BackroundColor;
+    extern bool show_pointColor;
+    extern bool buttonQuit;
+
     class viMainWidget {
         public:
+
+            viMainWidget(const viMainWidget&) = delete;
+            viMainWidget& operator=(const viMainWidget&) = delete;
             
-            viMainWidget(uint width, uint height): _width(width), _height(height) {
+            viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings) {
                 viewCamera = nullptr;
                 window = nullptr;
             };
@@ -84,8 +127,7 @@ namespace viWidget {
             GLFWwindow* window;
             viCamera::Camera* viewCamera;
 
-            uint _width;
-            uint _height;
+            WindowSettings _windowSettings;
     };
 
 

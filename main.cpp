@@ -78,7 +78,7 @@ void createFrameBuffer() {
 
 int main() {
 
-    viWidget::viMainWidget MainWindow(WIDTH,HEIGHT);
+    viWidget::viMainWidget MainWindow;
     
     GLFWwindow* window = MainWindow.initMainWindow();
 

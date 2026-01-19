@@ -20,7 +20,9 @@ namespace viWidget {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        window = glfwCreateWindow(_width, _height, "Virtuosa", NULL, NULL);
+        window = glfwCreateWindow(_windowSettings.width,
+                                  _windowSettings.height,
+                                  _windowSettings.title.c_str(), NULL, NULL);
 
         if (!window)
         {
@@ -48,7 +50,7 @@ namespace viWidget {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
-        glViewport(0, 0, _width, _height);
+        glViewport(0, 0, _windowSettings.width, _windowSettings.height);
 
         return window;
     }
@@ -244,7 +246,7 @@ namespace viWidget {
 
 
     void viMainWidget::initCamera() {
-        viewCamera = (new viCamera::Camera(_width, _height));
+        viewCamera = (new viCamera::Camera(_windowSettings.width, _windowSettings.height));
         glfwSetWindowUserPointer(window, viewCamera);
         glfwSetScrollCallback(window, viCamera::Camera::mouseScrollCallback);
     }
