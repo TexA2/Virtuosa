@@ -12,9 +12,11 @@
 using namespace viCamera;
 
     void Camera::zoomCamera(double yoffset){
-        float zoomSpeed = 150.0f * deltaTime;
+        float zoomSpeed = getCameraSpeed().scrool * deltaTime;
 
         getCameraSpace().cameraPos += getCameraSpace().cameraFront * (float)yoffset * zoomSpeed;
+        scale -= 0.1 * yoffset * zoomSpeed;
+
     }
 
     glm::mat4 Camera::moveCamera(GLFWwindow *window){
@@ -23,8 +25,7 @@ using namespace viCamera;
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;  
 
-        float cameraSpeed = 30.5f * deltaTime;
-        float rollSpeed = 90.0f * deltaTime; // Скорость вращения в градусах в секунду
+        float cameraSpeed = getCameraSpeed().move * deltaTime;
 
     // тут двигаемся по Z
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -54,7 +55,7 @@ using namespace viCamera;
 
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         {
-            float rollSpeed = 30.0f * deltaTime;
+            float rollSpeed = getCameraSpeed().roll * deltaTime;
             
             // Roll - вращение вокруг локальной оси Z (направления взгляда)
             // В системе камеры: ось Z = cameraFront (направление взгляда)
@@ -69,7 +70,7 @@ using namespace viCamera;
             
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
         {
-            float rollSpeed = -30.0f * deltaTime; 
+            float rollSpeed = -getCameraSpeed().roll * deltaTime; 
             
             glm::quat rollRotation = glm::angleAxis(glm::radians(rollSpeed), getCameraSpace().cameraFront);
             
@@ -170,7 +171,7 @@ using namespace viCamera;
     void Camera::resetToZero() {
         getCameraSpace() = CameraSettings::Space();
         
-        this->firstMouse  = true;
+        resetFirstMouse();
         this->currentOrient = glm::quat(1, 0, 0, 0);
     }
 

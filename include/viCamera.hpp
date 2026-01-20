@@ -24,6 +24,12 @@ namespace viCamera {
             glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f,  0.0f);       // вектор вверх
             glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);     // направление камеры в право
         } cameraSpace;
+
+        struct Speed {
+            float scrool = 100.f;
+            float move = 30.5f;
+            float roll = 30.0f;
+        } cameraSpeed;
     };
 
     class Camera{
@@ -32,20 +38,15 @@ namespace viCamera {
                                                     : _width(width) , _height(height),
                                                     _cameraSettings (cameraSettings)
             {
-
                 model = glm::mat4(1.0f);
-
-                firstMouse  = true;
-
                 currentOrient = glm::quat(1, 0, 0, 0);
-
-                //setOrthoProjection();
                 setPerspectiveProjection();
                 projPerspective = true;
 
-
                 deltaTime = 0.0f;
                 lastFrame = 0.0f;
+
+                firstMouse  = true;
             }
 
             ~Camera() = default;
@@ -62,6 +63,7 @@ namespace viCamera {
             void setPerspectiveProjection();
 
             CameraSettings::Space& getCameraSpace() { return _cameraSettings.cameraSpace;}
+            CameraSettings::Speed& getCameraSpeed() { return _cameraSettings.cameraSpeed;}
 
             glm::mat4 model;
             glm::mat4 projection;
