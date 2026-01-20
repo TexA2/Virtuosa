@@ -36,9 +36,6 @@ namespace viCamera {
                 model = glm::mat4(1.0f);
 
                 firstMouse  = true;
-                yaw =  0.f;
-                roll = 0.f;
-                senseRoll = 1.f;
 
                 currentOrient = glm::quat(1, 0, 0, 0);
 
@@ -65,9 +62,6 @@ namespace viCamera {
             void setPerspectiveProjection();
 
             CameraSettings::Space& getCameraSpace() { return _cameraSettings.cameraSpace;}
-
-
-
 
             glm::mat4 model;
             glm::mat4 projection;

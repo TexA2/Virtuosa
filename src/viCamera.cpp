@@ -48,7 +48,7 @@ using namespace viCamera;
 
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
             getCameraSpace().cameraPos += getCameraSpace().cameraUp * cameraSpeed;
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
             getCameraSpace().cameraPos -= getCameraSpace().cameraUp * cameraSpeed;
 
 
@@ -169,11 +169,8 @@ using namespace viCamera;
 
     void Camera::resetToZero() {
         getCameraSpace() = CameraSettings::Space();
+        
         this->firstMouse  = true;
-        this->yaw =  0.f;
-        this->roll = 0.f;
-        this->senseRoll = 1.f;
-
         this->currentOrient = glm::quat(1, 0, 0, 0);
     }
 
