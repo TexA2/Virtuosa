@@ -11,31 +11,30 @@
 namespace viCamera {
     enum class projectType : bool {Perspective , Ortho};
 
-    struct typeCamera {
+    struct CameraSettings {
         float fov = 75.0f;
-        float nearPlane = 0.1f;
+        float nearPlanePerspectiv = 0.1f;
         float farPlane = 1000.0f;
         bool usePerspective = true;
+        float nearPlaneOrto = -1000.f;
 
-        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f,  60.0f);     // положение камеры
-        glm::vec3 cameraFront = glm::vec3(0.0f, 0.f, -1.0f);     // вектор направления камеры (направление к цели)
-        glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f,  0.0f);       // вектор вверх
-        glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);     // направление камеры в право
+        struct Space {
+            glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f,  60.0f);     // положение камеры
+            glm::vec3 cameraFront = glm::vec3(0.0f, 0.f, -1.0f);     // вектор направления камеры (направление к цели)
+            glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f,  0.0f);       // вектор вверх
+            glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);     // направление камеры в право
+        } cameraSpace;
     };
 
     class Camera{
         public:
-
-            Camera(int width, int height) : _width(width) , _height(height)
+            Camera(int width, int height , const CameraSettings& cameraSettings = {}) 
+                                                    : _width(width) , _height(height),
+                                                    _cameraSettings (cameraSettings)
             {
-                cameraPos   = glm::vec3(0.0f, 0.0f,  60.0f);
-                cameraFront = glm::vec3(0.0f, 0.f, -1.0f);
-                cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-                cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
 
                 model = glm::mat4(1.0f);
 
-                direction   = cameraFront;
                 firstMouse  = true;
                 yaw =  0.f;
                 roll = 0.f;
@@ -65,6 +64,10 @@ namespace viCamera {
             void setOrthoProjection();
             void setPerspectiveProjection();
 
+            CameraSettings::Space& getCameraSpace() { return _cameraSettings.cameraSpace;}
+
+
+
 
             glm::mat4 model;
             glm::mat4 projection;
@@ -76,11 +79,8 @@ namespace viCamera {
      static void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
      
         private:
-            glm::vec3 cameraPos;        // положение камеры
-            glm::vec3 cameraFront;      // вектор направления камеры (направление к цели)
-            glm::vec3 cameraUp;         // вектор вверх
-            glm::vec3 cameraRight;      // направление камеры в право
-            glm::vec3 direction;
+
+            CameraSettings _cameraSettings;
 
             unsigned int modelLoc;
             unsigned int projectionLoc;

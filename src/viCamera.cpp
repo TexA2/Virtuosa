@@ -11,11 +11,10 @@
 
 using namespace viCamera;
 
-
     void Camera::zoomCamera(double yoffset){
         float zoomSpeed = 150.0f * deltaTime;
 
-        cameraPos += cameraFront * (float)yoffset * zoomSpeed;
+        getCameraSpace().cameraPos += getCameraSpace().cameraFront * (float)yoffset * zoomSpeed;
     }
 
     glm::mat4 Camera::moveCamera(GLFWwindow *window){
@@ -30,27 +29,27 @@ using namespace viCamera;
     // тут двигаемся по Z
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             {
-                cameraPos +=  cameraFront * cameraSpeed;
+                getCameraSpace().cameraPos +=  getCameraSpace().cameraFront * cameraSpeed;
                 scale -= 0.1 * deltaTime;
             }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
             {
-                cameraPos -= cameraFront * cameraSpeed;
+                getCameraSpace().cameraPos -= getCameraSpace().cameraFront * cameraSpeed;
                 scale += 0.1 * deltaTime;
             }
 
     // тут двигаемся по Х
-    glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
+    glm::vec3 right = glm::normalize(glm::cross(getCameraSpace().cameraFront, getCameraSpace().cameraUp));
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            cameraPos -= right * cameraSpeed;
+            getCameraSpace().cameraPos -= right * cameraSpeed;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            cameraPos += right * cameraSpeed;
+            getCameraSpace().cameraPos += right * cameraSpeed;
 
 
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-            cameraPos += cameraUp * cameraSpeed;
+            getCameraSpace().cameraPos += getCameraSpace().cameraUp * cameraSpeed;
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-            cameraPos -= cameraUp * cameraSpeed;
+            getCameraSpace().cameraPos -= getCameraSpace().cameraUp * cameraSpeed;
 
 
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -59,12 +58,12 @@ using namespace viCamera;
             
             // Roll - вращение вокруг локальной оси Z (направления взгляда)
             // В системе камеры: ось Z = cameraFront (направление взгляда)
-            glm::quat rollRotation = glm::angleAxis(glm::radians(rollSpeed), cameraFront);
+            glm::quat rollRotation = glm::angleAxis(glm::radians(rollSpeed), getCameraSpace().cameraFront);
             
             currentOrient = rollRotation * currentOrient;
             currentOrient = glm::normalize(currentOrient);
             
-            cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
+            getCameraSpace().cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
             
@@ -72,19 +71,21 @@ using namespace viCamera;
         {
             float rollSpeed = -30.0f * deltaTime; 
             
-            glm::quat rollRotation = glm::angleAxis(glm::radians(rollSpeed), cameraFront);
+            glm::quat rollRotation = glm::angleAxis(glm::radians(rollSpeed), getCameraSpace().cameraFront);
             
             currentOrient = rollRotation * currentOrient;
             currentOrient = glm::normalize(currentOrient);
             
-            cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
+            getCameraSpace().cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
    
-        return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        return glm::lookAt(getCameraSpace().cameraPos,
+                            getCameraSpace().cameraPos + getCameraSpace().cameraFront,
+                            getCameraSpace().cameraUp);
     }
 
     void Camera::processMouseMovement(double xpos, double ypos){
@@ -126,10 +127,10 @@ using namespace viCamera;
     currentOrient = glm::normalize(currentOrient);
     
     // Обновляем направление камеры (если нужно)
-    cameraFront = currentOrient * glm::vec3(0.0f, 0.0f, -1.0f);
+    getCameraSpace().cameraFront = currentOrient * glm::vec3(0.0f, 0.0f, -1.0f);
     
     // Также обновляем up-вектор для сохранения ортогональности
-    cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
+    getCameraSpace().cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
     void Camera::mouseMoveCallback(GLFWwindow* window, double xpos, double ypos){
@@ -167,11 +168,7 @@ using namespace viCamera;
     void Camera::resetFirstMouse() { firstMouse = true; }
 
     void Camera::resetToZero() {
-        this->cameraPos   = glm::vec3(0.0f, 0.0f,  60.0f);
-        this->cameraFront = glm::vec3(0.0f, 0.f, -1.0f);
-        this->cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-        this->cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);
-        this->direction   = cameraFront;
+        getCameraSpace() = CameraSettings::Space();
         this->firstMouse  = true;
         this->yaw =  0.f;
         this->roll = 0.f;
