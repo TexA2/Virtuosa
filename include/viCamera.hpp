@@ -11,6 +11,18 @@
 namespace viCamera {
     enum class projectType : bool {Perspective , Ortho};
 
+    struct typeCamera {
+        float fov = 75.0f;
+        float nearPlane = 0.1f;
+        float farPlane = 1000.0f;
+        bool usePerspective = true;
+
+        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f,  60.0f);     // положение камеры
+        glm::vec3 cameraFront = glm::vec3(0.0f, 0.f, -1.0f);     // вектор направления камеры (направление к цели)
+        glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f,  0.0f);       // вектор вверх
+        glm::vec3 cameraRight = glm::vec3(1.0f, 0.0f, 0.0f);     // направление камеры в право
+    };
+
     class Camera{
         public:
 
@@ -93,6 +105,8 @@ namespace viCamera {
 
             float deltaTime;	// время между текущим и последним кадрами
             float lastFrame; // время последнего кадра
+
+            float scale = 0.1f; // увеличивайте этот коэффициент для увеличения
     };
 }
 

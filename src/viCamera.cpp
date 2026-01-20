@@ -29,9 +29,15 @@ using namespace viCamera;
 
     // тут двигаемся по Z
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            cameraPos +=  cameraFront * cameraSpeed;
+            {
+                cameraPos +=  cameraFront * cameraSpeed;
+                scale -= 0.1 * deltaTime;
+            }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            cameraPos -= cameraFront * cameraSpeed;
+            {
+                cameraPos -= cameraFront * cameraSpeed;
+                scale += 0.1 * deltaTime;
+            }
 
     // тут двигаемся по Х
     glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
@@ -175,17 +181,13 @@ using namespace viCamera;
     }
 
     void Camera::setOrthoProjection() {
-            float centerX = (1.0f + 126.0f) / 2.0f; // 63.5
-            float centerY = centerX; // если координаты Y такие же
-            float scale = 10.f; // увеличивайте этот коэффициент для увеличения
-
             projection= glm::ortho(
-                -float(_width)/2.0f / scale + centerX,    // left
-                float(_width)/2.0f / scale + centerX,     // right
-                -float(_height)/2.0f / scale + centerY,   // bottom
-                float(_height)/2.0f / scale + centerY,    // top
-                0.000001f,                                    // near
-                100000.0f                                  // far
+                (-float(_width)  / 2.0f) * scale,    // left
+                (float(_width)   / 2.0f) * scale,    // right
+                (-float(_height) / 2.0f) * scale,    // bottom
+                (float(_height)  / 2.0f) * scale,    // top
+                -1000.f,                     // near
+                1000.0f                   // far
             );
     } 
 
