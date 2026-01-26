@@ -9,14 +9,14 @@
 
 
 namespace viCamera {
-    enum class projectType : bool {Perspective , Ortho};
+    enum class ProjectType : bool {Perspective , Ortho};
 
     struct CameraSettings {
         float fov = 75.0f;
         float nearPlanePerspectiv = 0.1f;
+        float nearPlaneOrto = -1000.f;
         float farPlane = 1000.0f;
         bool usePerspective = true;
-        float nearPlaneOrto = -1000.f;
 
         struct Space {
             glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f,  60.0f);     // положение камеры
@@ -36,7 +36,9 @@ namespace viCamera {
         public:
             Camera(int width, int height , const CameraSettings& cameraSettings = {}) 
                                                     : _width(width) , _height(height),
-                                                    _cameraSettings (cameraSettings)
+                                                    _cameraSettings(cameraSettings),
+                                                    _projectionType(ProjectType::Perspective)
+
             {
                 model = glm::mat4(1.0f);
                 currentOrient = glm::quat(1, 0, 0, 0);
@@ -47,6 +49,8 @@ namespace viCamera {
                 lastFrame = 0.0f;
 
                 firstMouse  = true;
+
+                scale = 0.1f;
             }
 
             ~Camera() = default;
@@ -61,6 +65,8 @@ namespace viCamera {
             void resetToZero();
             void setOrthoProjection();
             void setPerspectiveProjection();
+            void updateProjection();
+            void toggleProjection();
 
             CameraSettings::Space& getCameraSpace() { return _cameraSettings.cameraSpace;}
             CameraSettings::Speed& getCameraSpeed() { return _cameraSettings.cameraSpeed;}
@@ -77,6 +83,7 @@ namespace viCamera {
         private:
 
             CameraSettings _cameraSettings;
+            ProjectType _projectionType;
 
             unsigned int modelLoc;
             unsigned int projectionLoc;
@@ -102,7 +109,7 @@ namespace viCamera {
             float deltaTime;	// время между текущим и последним кадрами
             float lastFrame; // время последнего кадра
 
-            float scale = 0.1f; // увеличивайте этот коэффициент для увеличения
+            float scale; // увеличивайте этот коэффициент для увеличения
     };
 }
 

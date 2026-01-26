@@ -108,7 +108,7 @@ namespace viWidget {
         glViewport(0, 0, width, heigth);
     }
 
-    void viMainWidget::ShowExampleAppMainMenuBar(bool& projType) {
+    void viMainWidget::ShowExampleAppMainMenuBar() {
         if (ImGui::BeginMainMenuBar())
         {
             if (ImGui::BeginMenu("File"))
@@ -119,7 +119,7 @@ namespace viWidget {
 
             if (ImGui::BeginMenu("Tools"))
             {
-                if (ImGui::MenuItem("Projection")) { projType = !projType; }
+                if (ImGui::MenuItem("Projection")) { viewCamera->toggleProjection(); }
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();

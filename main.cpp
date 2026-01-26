@@ -124,12 +124,6 @@ int main() {
             continue;
         }
 
-        if(MainWindow.getCamera()->projPerspective)
-            MainWindow.getCamera()->setPerspectiveProjection();
-        else
-            MainWindow.getCamera()->setOrthoProjection();
-
-
         if(MainWindow.getCloudData()->viCloud._cloud)
         {
             // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -169,7 +163,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        MainWindow.ShowExampleAppMainMenuBar(MainWindow.getCamera()->projPerspective);
+        MainWindow.ShowExampleAppMainMenuBar();
 
 
         if (viWidget::show_BackroundColor)

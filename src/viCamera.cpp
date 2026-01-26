@@ -81,6 +81,8 @@ using namespace viCamera;
         }
 
 
+        updateProjection();
+        
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
    
@@ -181,15 +183,16 @@ using namespace viCamera;
                 (float(_width)   / 2.0f) * scale,    // right
                 (-float(_height) / 2.0f) * scale,    // bottom
                 (float(_height)  / 2.0f) * scale,    // top
-                -1000.f,                     // near
-                1000.0f                   // far
+                _cameraSettings.nearPlaneOrto,       // near
+                _cameraSettings.farPlane             // far
             );
     } 
 
     void Camera::setPerspectiveProjection() {
         projection = glm::perspective(glm::radians(75.f),
                                       float(_width) / float(_height),
-                                      0.1f, 1000.f);
+                                      _cameraSettings.nearPlanePerspectiv,
+                                      _cameraSettings.farPlane);
     } 
 
 
@@ -205,4 +208,22 @@ using namespace viCamera;
 
             camera->zoomCamera(yoffset);
         }
-    }    
+    }
+    
+    
+    void Camera::updateProjection() {
+        if (_projectionType == ProjectType::Perspective)
+            setPerspectiveProjection();
+        else 
+            setOrthoProjection();
+    }
+
+    void Camera::toggleProjection() {
+
+        if (_projectionType == ProjectType::Perspective)
+            _projectionType = ProjectType::Ortho;
+        else
+            _projectionType = ProjectType::Perspective;
+
+        updateProjection();
+    }

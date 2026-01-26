@@ -99,7 +99,7 @@ namespace viWidget {
 
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
 
-            void ShowExampleAppMainMenuBar(bool& projType);  //в UI
+            void ShowExampleAppMainMenuBar();  //в UI
             void ShowExampleMenuFile();                      // в UI
 
             std::shared_ptr<viCamera::Camera> getCamera() const;
