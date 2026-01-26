@@ -108,67 +108,6 @@ namespace viWidget {
         glViewport(0, 0, width, heigth);
     }
 
-    void viMainWidget::ShowExampleAppMainMenuBar() {
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                ShowExampleMenuFile();
-                ImGui::EndMenu();
-            }
-
-            if (ImGui::BeginMenu("Tools"))
-            {
-                if (ImGui::MenuItem("Projection")) { viewCamera->toggleProjection(); }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
-        }
-    }
-
-    void viMainWidget::ShowExampleMenuFile() {
-        if (ImGui::MenuItem("New")) 
-        { 
-            //TODO: поченить после изменений
-            //viCloud._cloud->clear();
-            //viCloud.cloudOpen = false;
-        }
-
-
-        if (ImGui::MenuItem("Open", "Ctrl+O")) {
-            NFD_Init();
-
-            nfdu8char_t *outPath;
-            nfdu8filteritem_t filters[1] = { { "point cloud", "pcd" }};
-            nfdopendialogu8args_t args = {0};
-            args.filterList = filters;
-            args.filterCount = 1;
-            nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
-            if (result == NFD_OKAY)
-            {
-                cloudData->pointCloudOpen(outPath);
-            }
-            else if (result == NFD_CANCEL)
-            {
-                puts("User pressed cancel.");
-            }
-            else 
-            {
-                printf("Error: %s\n", NFD_GetError());
-            }
-
-            NFD_Quit();
-        }
-        if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-        if (ImGui::MenuItem("Save As..")) {}
-        if (ImGui::MenuItem("Background Color")) {show_BackroundColor = true;}
-        if (ImGui::MenuItem("Point Color")) {   show_pointColor = true;}
-        ImGui::Separator();
-        if (ImGui::MenuItem("Quit", "Alt+F4")) {
-            buttonQuit = true;
-        }
-    }
-
     void viMainWidget::initCamera() {
         viewCamera = std::make_shared<viCamera::Camera>(_windowSettings.width, _windowSettings.height);
         glfwSetWindowUserPointer(window.get(), viewCamera.get());
@@ -194,6 +133,14 @@ namespace viWidget {
 
     std::shared_ptr<viData::viManageData> viMainWidget::getCloudData() {
         return cloudData;
+    }
+
+    void viMainWidget::initUI() {
+        menuUI = std::make_shared<viUI::viManageUI>(cloudData, viewCamera);
+    }
+
+    std::shared_ptr<viUI::viManageUI> viMainWidget::getMenu() {
+        return menuUI;
     }
 
 }

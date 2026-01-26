@@ -3,8 +3,8 @@
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
-#include <glm/glm.hpp>
+// #include <glad/glad.h>
+// #include <glm/glm.hpp>
 
 
 #include "string"
@@ -15,12 +15,10 @@
 
 #include "nfd.hpp"
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-
 #include <viCamera.hpp>
 #include <viShader.hpp>
 #include <viData.hpp>
+#include <viUI.hpp>
 
 namespace viWidget {
 
@@ -84,7 +82,8 @@ namespace viWidget {
                 viewCamera = nullptr;
                 window = nullptr;
                 cloudShader = nullptr;
-                cloudData= nullptr;
+                cloudData = nullptr;
+                menuUI = nullptr;
             };
 
             ~viMainWidget() = default;
@@ -93,24 +92,24 @@ namespace viWidget {
 
             GLFWwindow* initMainWindow();
             void initCamera();
-            void initGui();
+            void initGui();                 // для теста тоже в UI
             void initShader();
             void initCloudData();
+            void initUI();
 
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
-
-            void ShowExampleAppMainMenuBar();  //в UI
-            void ShowExampleMenuFile();                      // в UI
 
             std::shared_ptr<viCamera::Camera> getCamera() const;
             std::shared_ptr<viShader::Shader> getShader() const;
             std::shared_ptr<viData::viManageData> getCloudData();
+            std::shared_ptr<viUI::viManageUI> getMenu();
 
         private:
             std::shared_ptr<GLFWwindow> window;
             std::shared_ptr<viCamera::Camera> viewCamera;
             std::shared_ptr<viShader::Shader> cloudShader;
             std::shared_ptr<viData::viManageData> cloudData;
+            std::shared_ptr<viUI::viManageUI> menuUI;
             
 
             WindowSettings _windowSettings;

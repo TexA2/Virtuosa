@@ -1,8 +1,10 @@
 #ifndef VI_CAMERA
 #define VI_CAMERA
 
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -42,15 +44,12 @@ namespace viCamera {
             {
                 model = glm::mat4(1.0f);
                 currentOrient = glm::quat(1, 0, 0, 0);
-                setPerspectiveProjection();
-                projPerspective = true;
-
                 deltaTime = 0.0f;
                 lastFrame = 0.0f;
-
                 firstMouse  = true;
-
                 scale = 0.1f;
+
+                updateProjection();
             }
 
             ~Camera() = default;
@@ -73,7 +72,6 @@ namespace viCamera {
 
             glm::mat4 model;
             glm::mat4 projection;
-            bool projPerspective;
 
 //Call-back func
      static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);

@@ -90,6 +90,7 @@ int main() {
     MainWindow.initCamera();
     MainWindow.initShader();
     MainWindow.initCloudData();
+    MainWindow.initUI();
     
     createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
 
@@ -163,7 +164,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        MainWindow.ShowExampleAppMainMenuBar();
+        MainWindow.getMenu()->ShowExampleAppMainMenuBar();
 
 
         if (viWidget::show_BackroundColor)
