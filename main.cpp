@@ -13,11 +13,6 @@
 #define HEIGHT 1024
 
 
-ImVec4 clear_color = ImVec4(0.25f, 0.4f, 0.48f, 1.00f);
-ImVec4 point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
-
-bool show_intensity_color = false;
-
 unsigned int framebuffer;
 unsigned int textureBuffer;
 
@@ -86,7 +81,11 @@ int main() {
     {
         glfwPollEvents();
 
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w); // Устанавливаем цвет очистки
+        glClearColor(MainWindow.getMenu()->clear_color.x,
+                    MainWindow.getMenu()->clear_color.y,
+                    MainWindow.getMenu()->clear_color.z,
+                    MainWindow.getMenu()->clear_color.w); // Устанавливаем цвет очистки
+
         glClear(GL_COLOR_BUFFER_BIT); //| GL_DEPTH_BUFFER_BIT);
 
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
@@ -103,18 +102,21 @@ int main() {
             
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(MainWindow.getCamera()->moveCamera(window)));
 
-            if (!show_intensity_color)
+            if (!MainWindow.getMenu()->show_intensity_color)
             {
-                glUniform1i(useIntensityColorLoc, show_intensity_color);
+                glUniform1i(useIntensityColorLoc, MainWindow.getMenu()->show_intensity_color);
 
                 glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
                 glDisableVertexAttribArray(1);         // Отключаем атрибут
 
-                glUniform4f(colorLoc,  point_color.x, point_color.y, point_color.z, point_color.w);
+                glUniform4f(colorLoc,    MainWindow.getMenu()->point_color.x,
+                            MainWindow.getMenu()->point_color.y,
+                            MainWindow.getMenu()->point_color.z,
+                            MainWindow.getMenu()->point_color.w);
             }
             else
             {
-                glUniform1i(useIntensityColorLoc, show_intensity_color);
+                glUniform1i(useIntensityColorLoc, MainWindow.getMenu()->show_intensity_color);
 
                 glEnableVertexAttribArray(1);
                 glVertexAttribDivisor(1, 1);
@@ -130,55 +132,7 @@ int main() {
         }
 
 // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        MainWindow.getMenu()->ShowExampleAppMainMenuBar();
-
-
-        if (MainWindow.getMenu()->show_BackroundColor)
-        {
-            ImGui::Begin("Background Color Render", &MainWindow.getMenu()->show_BackroundColor);
-            ImGui::ColorEdit3("clear color", (float*)&clear_color);
-            ImGui::End();
-        }
-
-
-        if(MainWindow.getMenu()->show_pointColor)
-        {
-            ImGui::Begin("Point Cloud COlor Render", &MainWindow.getMenu()->show_pointColor);
-            ImGui::ColorEdit3("clear color", (float*)&point_color);
-            ImGui::Checkbox("Intensity", &show_intensity_color);  
-            ImGui::End();
-        }
-
-        if(MainWindow.getMenu()->buttonQuit) {
-            glfwSetWindowShouldClose(window, true);
-        }
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // 1. Получаем состояние мыши
-        ImGuiIO& io = ImGui::GetIO();
-        bool mouseOverImGui = io.WantCaptureMouse;
-        
-        // 2. Проверяем нажатие левой кнопки мыши
-        static bool wasMousePressed = false;
-        int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-        bool isMousePressed = (mouseState == GLFW_PRESS);
-
-
-        if (!mouseOverImGui)
-        {
-            if (isMousePressed)
-            {
-                    double xpos, ypos;
-                    glfwGetCursorPos(window, &xpos, &ypos);
-                    MainWindow.getCamera()->mouseMoveCallback(window,  xpos,  ypos);
-            } else { MainWindow.getCamera()->resetFirstMouse(); }
-        }
+        MainWindow.getMenu()->renderUI(window);
 
 
         glfwSwapBuffers(window);
@@ -194,13 +148,6 @@ int main() {
             lastTime = currentTime;
         }
     }
-
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    //glfwDestroyWindow(window); вроде не нужно, так как на shared_ptr переписал
 
     glfwTerminate();
     return 0;

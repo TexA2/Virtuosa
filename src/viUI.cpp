@@ -2,11 +2,6 @@
 
 namespace viUI {
 
-
-    bool show_BackroundColor = false;
-    bool show_pointColor = false;
-    bool buttonQuit = false;
-
     void viManageUI::ShowExampleAppMainMenuBar() {
         if (ImGui::BeginMainMenuBar())
         {
@@ -71,4 +66,69 @@ namespace viUI {
             buttonQuit = true;
         }
     }
+
+
+    void viManageUI::renderUI(GLFWwindow* window) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+
+        ShowExampleAppMainMenuBar();
+
+
+        if (show_BackroundColor)
+        {
+            ImGui::Begin("Background Color Render", &show_BackroundColor);
+            ImGui::ColorEdit3("clear color", (float*)&clear_color);
+            ImGui::End();
+        }
+
+
+        if(show_pointColor)
+        {
+            ImGui::Begin("Point Cloud COlor Render", &show_pointColor);
+            ImGui::ColorEdit3("clear color", (float*)&point_color);
+            ImGui::Checkbox("Intensity", &show_intensity_color);  
+            ImGui::End();
+        }
+
+
+        if(buttonQuit) {
+            glfwSetWindowShouldClose(window, true);
+        }
+
+
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // 1. Получаем состояние мыши
+        ImGuiIO& io = ImGui::GetIO();
+        bool mouseOverImGui = io.WantCaptureMouse;
+        
+        // 2. Проверяем нажатие левой кнопки мыши
+        static bool wasMousePressed = false;
+        int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        bool isMousePressed = (mouseState == GLFW_PRESS);
+
+
+        if (!mouseOverImGui)
+        {
+            if (isMousePressed)
+            {
+                double xpos, ypos;
+                glfwGetCursorPos(window, &xpos, &ypos);
+
+                if(auto temp_camera = _viewCamera.lock())
+                    temp_camera->mouseMoveCallback(window,  xpos,  ypos);
+
+            } else {
+                if(auto temp_camera = _viewCamera.lock()) 
+                    temp_camera->resetFirstMouse(); }
+        }
+    }
+
+                    // if(auto temp_cloudData = _cloudData.lock())
+                    // temp_cloudData->pointCloudOpen(outPath);
 }

@@ -69,13 +69,17 @@ namespace viWidget {
                 menuUI = nullptr;
             };
 
-            ~viMainWidget() = default;
+            ~viMainWidget() {
+                ImGui_ImplOpenGL3_Shutdown();
+                ImGui_ImplGlfw_Shutdown();
+                ImGui::DestroyContext();
+            };
 
             //void initialize(); // запихаю сюда все функциии c именем init
 
             GLFWwindow* initMainWindow();
             void initCamera();
-            void initGui();                 // для теста тоже в UI
+            void initGui();
             void initShader();
             void initCloudData();
             void initUI();
