@@ -20,10 +20,6 @@ namespace viWidget {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        // window = glfwCreateWindow(_windowSettings.width,
-        //                           _windowSettings.height,
-        //                           _windowSettings.title.c_str(), NULL, NULL);
-
         GLFWwindow* rawWindow = glfwCreateWindow(
                                 _windowSettings.width,
                                 _windowSettings.height,
@@ -125,7 +121,6 @@ namespace viWidget {
     std::shared_ptr<viShader::Shader> viMainWidget::getShader() const {
         return cloudShader;
     }
-
 
     void viMainWidget::initCloudData() {
         cloudData = std::make_shared<viData::viManageData>();

@@ -71,9 +71,4 @@ namespace viUI {
             buttonQuit = true;
         }
     }
-
-
-
-
-
 }

@@ -12,15 +12,6 @@
 #define WIDTH  1280
 #define HEIGHT 1024
 
-// Helper to wire demo markers located in code to an interactive browser
-typedef void (*ImGuiDemoMarkerCallback)(const char* file, int line, const char* section, void* user_data);
-extern ImGuiDemoMarkerCallback      GImGuiDemoMarkerCallback;
-extern void*                        GImGuiDemoMarkerCallbackUserData;
-ImGuiDemoMarkerCallback             GImGuiDemoMarkerCallback = NULL;
-void*                               GImGuiDemoMarkerCallbackUserData = NULL;
-
-#define IMGUI_DEMO_MARKER(section)  do { if (GImGuiDemoMarkerCallback != NULL) GImGuiDemoMarkerCallback("imgui_demo.cpp", __LINE__, section, GImGuiDemoMarkerCallbackUserData); } while (0)
-
 
 ImVec4 clear_color = ImVec4(0.25f, 0.4f, 0.48f, 1.00f);
 ImVec4 point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
@@ -31,13 +22,11 @@ unsigned int framebuffer;
 unsigned int textureBuffer;
 
 void createFrameBuffer() {
-    // unsigned int framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 
     //создание текстуры рендеринга
-    // unsigned int textureBuffer;
     glGenTextures(1, &textureBuffer);
     glBindTexture(GL_TEXTURE_2D, textureBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);

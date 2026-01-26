@@ -87,7 +87,7 @@ using namespace viCamera;
                             getCameraSpace().cameraUp);
     }
 
-    void Camera::processMouseMovement(double xpos, double ypos){
+    void Camera::processMouseMovement(double xpos, double ypos) {
 
      // Инициализация при первом вызове
     if (firstMouse) {
@@ -110,14 +110,9 @@ using namespace viCamera;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
-    // ВАРИАНТ 1: Самый правильный - накопление вращений через кватернионы
-    // (предполагаем, что у вас есть переменная для хранения вращения объекта)
-    
-    // Вращение вокруг глобальной оси Y (горизонтальное движение мыши)
+
     glm::quat yawRotation = glm::angleAxis(xoffset, glm::vec3(0.0f, 1.0f, 0.0f));
     
-    // Вращение вокруг локальной оси X (вертикальное движение мыши)
-    // Получаем локальную ось X из текущего вращения объекта
     glm::vec3 localRight = currentOrient * glm::vec3(1.0f, 0.0f, 0.0f);
     glm::quat pitchRotation = glm::angleAxis(yoffset, localRight);
     
@@ -125,10 +120,8 @@ using namespace viCamera;
     currentOrient = pitchRotation * currentOrient * yawRotation;
     currentOrient = glm::normalize(currentOrient);
     
-    // Обновляем направление камеры (если нужно)
+
     getCameraSpace().cameraFront = currentOrient * glm::vec3(0.0f, 0.0f, -1.0f);
-    
-    // Также обновляем up-вектор для сохранения ортогональности
     getCameraSpace().cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
