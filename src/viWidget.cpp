@@ -3,10 +3,6 @@
 
 namespace viWidget {
 
-    bool show_BackroundColor = false;
-    bool show_pointColor = false;
-    bool buttonQuit = false;
-
     GLFWwindow* viMainWidget::initMainWindow()
     {
         if (!glfwInit())

@@ -26,6 +26,11 @@ namespace viUI {
 
             void ShowExampleAppMainMenuBar();
             void ShowExampleMenuFile();
+
+
+            bool show_BackroundColor = false;
+            bool show_pointColor = false;
+            bool buttonQuit = false;
         
         private:
             std::weak_ptr<viData::viManageData> _cloudData;

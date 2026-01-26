@@ -137,23 +137,23 @@ int main() {
         MainWindow.getMenu()->ShowExampleAppMainMenuBar();
 
 
-        if (viWidget::show_BackroundColor)
+        if (MainWindow.getMenu()->show_BackroundColor)
         {
-            ImGui::Begin("Background Color Render", &viWidget::show_BackroundColor);
+            ImGui::Begin("Background Color Render", &MainWindow.getMenu()->show_BackroundColor);
             ImGui::ColorEdit3("clear color", (float*)&clear_color);
             ImGui::End();
         }
 
 
-        if(viWidget::show_pointColor)
+        if(MainWindow.getMenu()->show_pointColor)
         {
-            ImGui::Begin("Point Cloud COlor Render", &viWidget::show_pointColor);
+            ImGui::Begin("Point Cloud COlor Render", &MainWindow.getMenu()->show_pointColor);
             ImGui::ColorEdit3("clear color", (float*)&point_color);
             ImGui::Checkbox("Intensity", &show_intensity_color);  
             ImGui::End();
         }
 
-        if(viWidget::buttonQuit) {
+        if(MainWindow.getMenu()->buttonQuit) {
             glfwSetWindowShouldClose(window, true);
         }
 
