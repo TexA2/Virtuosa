@@ -4,7 +4,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
-#include <glad/glad.h>
+//#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -43,6 +43,7 @@ namespace viCamera {
 
             {
                 model = glm::mat4(1.0f);
+                lookAt = glm::mat4(1.f);
                 currentOrient = glm::quat(1, 0, 0, 0);
                 deltaTime = 0.0f;
                 lastFrame = 0.0f;
@@ -59,7 +60,6 @@ namespace viCamera {
             void processMouseMovement(double xpos, double ypos);
             void setWindowSize(int width, int height);
             void setXYPose(double xpos, double ypos);
-            void setWorldModel(unsigned int modelLoc, unsigned int projectionLoc);
             void resetFirstMouse();
             void resetToZero();
             void setOrthoProjection();
@@ -67,11 +67,10 @@ namespace viCamera {
             void updateProjection();
             void toggleProjection();
 
+            glm::mat4 getMvpMatrix();
+
             CameraSettings::Space& getCameraSpace() { return _cameraSettings.cameraSpace;}
             CameraSettings::Speed& getCameraSpeed() { return _cameraSettings.cameraSpeed;}
-
-            glm::mat4 model;
-            glm::mat4 projection;
 
 //Call-back func
      static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
@@ -83,8 +82,9 @@ namespace viCamera {
             CameraSettings _cameraSettings;
             ProjectType _projectionType;
 
-            unsigned int modelLoc;
-            unsigned int projectionLoc;
+            glm::mat4 model;
+            glm::mat4 projection;
+            glm::mat4 lookAt;
 
             bool firstMouse;
 

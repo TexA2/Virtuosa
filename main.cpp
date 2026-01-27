@@ -39,24 +39,12 @@ void createFrameBuffer() {
 
 
 int main() {
-
     viWidget::viMainWidget MainWindow;
-    
     //createFrameBuffer(); //В данный момент рудимент, но скоро нужно будет использовать
-
-    MainWindow.getShader()->bind();
-
-    unsigned int modelLoc = glGetUniformLocation(MainWindow.getShader()->ID, "model");
-    unsigned int projectionLoc = glGetUniformLocation(MainWindow.getShader()->ID, "projection");
-    MainWindow.getCamera()->setWorldModel(modelLoc, projectionLoc);   
-
-    MainWindow.getShader()->unbind();
 
 // ****Основной цикл****
     while (!glfwWindowShouldClose(MainWindow.getWindow()))
-    {
         MainWindow.render();
-    }
 
     return 0;
 }

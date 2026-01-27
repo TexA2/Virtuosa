@@ -15,7 +15,10 @@ using namespace viCamera;
 
     }
 
-    glm::mat4 Camera::moveCamera(GLFWwindow *window){
+    // TODO: Камера не должна перехватывать window
+    // пусть Widget перехватывает window и от события вызывает действие
+    // но для начала нужно синхронизировать проекции!
+    glm::mat4 Camera::moveCamera(GLFWwindow *window) {
 
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -76,15 +79,12 @@ using namespace viCamera;
             getCameraSpace().cameraUp = currentOrient * glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
-
         updateProjection();
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-   
-        return glm::lookAt(getCameraSpace().cameraPos,
-                            getCameraSpace().cameraPos + getCameraSpace().cameraFront,
-                            getCameraSpace().cameraUp);
+        lookAt = glm::lookAt(getCameraSpace().cameraPos,
+                             getCameraSpace().cameraPos + getCameraSpace().cameraFront,
+                             getCameraSpace().cameraUp);
+
+        return getMvpMatrix();
     }
 
     void Camera::processMouseMovement(double xpos, double ypos) {
@@ -151,12 +151,6 @@ using namespace viCamera;
         this->lastY = ypos;
     }
 
-    void Camera::setWorldModel(unsigned int modelLoc, unsigned int projectionLoc)
-    {
-        this->modelLoc = modelLoc;
-        this->projectionLoc = projectionLoc;
-    }
-
     void Camera::resetFirstMouse() { firstMouse = true; }
 
     void Camera::resetToZero() {
@@ -215,4 +209,8 @@ using namespace viCamera;
             _projectionType = ProjectType::Perspective;
 
         updateProjection();
+    }
+
+    glm::mat4 Camera::getMvpMatrix() {
+        return model * projection * lookAt;
     }

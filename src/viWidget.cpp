@@ -145,9 +145,8 @@ namespace viWidget {
     void viMainWidget::render() {
         cloudShader->bind();
 
-        unsigned int modelLoc = glGetUniformLocation(cloudShader->ID, "model");
-        unsigned int viewLoc = glGetUniformLocation(cloudShader->ID, "view");
-        unsigned int projectionLoc = glGetUniformLocation(cloudShader->ID, "projection");
+        unsigned int mvpLoc = glGetUniformLocation(cloudShader->ID, "mvpMatrix");
+
 
         unsigned int colorLoc = glGetUniformLocation(cloudShader->ID, "ourColor");
         unsigned int useIntensityColorLoc = glGetUniformLocation(cloudShader->ID, "useIntensityColor");
@@ -172,7 +171,7 @@ namespace viWidget {
 
             glBindVertexArray(cloudData->viCloud.buffer.VAO);
             
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewCamera->moveCamera(window.get())));
+            glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(viewCamera->moveCamera(window.get())));
 
             if (!menuUI->show_intensity_color)
             {
