@@ -21,8 +21,7 @@ namespace viUI {
                         _cloudData(cloudData),
                         _viewCamera(viewCamera)
                         {
-                            clear_color = ImVec4(0.25f, 0.4f, 0.48f, 1.00f);
-                            point_color = ImVec4(1.f, 1.f, 0.f, 1.00f);
+                            clear_color = glm::vec4(0.25f, 0.4f, 0.48f, 1.00f);
                         }
 
             ~viManageUI() = default;
@@ -38,9 +37,7 @@ namespace viUI {
             bool buttonQuit = false;
             bool show_intensity_color = false;
 
-            ImVec4 clear_color; // потом в рендер
-            ImVec4 point_color; // потом в рендер
-        
+            glm::vec4 clear_color; // потом в рендер
         private:
             std::weak_ptr<viData::viManageData> _cloudData;
             std::weak_ptr<viCamera::Camera> _viewCamera;

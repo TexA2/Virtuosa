@@ -88,7 +88,10 @@ namespace viUI {
         if(show_pointColor)
         {
             ImGui::Begin("Point Cloud COlor Render", &show_pointColor);
-            ImGui::ColorEdit3("clear color", (float*)&point_color);
+
+            if(auto temp_cloudData = _cloudData.lock())
+                ImGui::ColorEdit3("clear color", (float*)&temp_cloudData->viCloud.point_color);
+
             ImGui::Checkbox("Intensity", &show_intensity_color);  
             ImGui::End();
         }

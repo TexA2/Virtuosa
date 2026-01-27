@@ -3,12 +3,16 @@
 
 namespace viWidget {
 
-    GLFWwindow* viMainWidget::initMainWindow()
+
+// ============================================================================
+//                              Init функции
+// ============================================================================
+    std::optional<bool> viMainWidget::initMainWindow()
     {
         if (!glfwInit())
         {
             std::cerr << "Failed to initialize GLFW\n";
-            return nullptr;
+            return std::nullopt;
         }
 
         // Устанавливаем версию OpenGL
@@ -39,7 +43,7 @@ namespace viWidget {
         {
             std::cerr << "Failed to open GLFW window\n";
             glfwTerminate();
-            return nullptr;
+            return std::nullopt;
         }
 
         glfwMakeContextCurrent(window.get());
@@ -53,7 +57,7 @@ namespace viWidget {
         {
             std::cerr << "Failed to initialize GLAD\n";
             glfwTerminate();
-            return nullptr;
+            return std::nullopt;
         }
 
         glfwSwapInterval(0); // отключаем Vsync
@@ -63,7 +67,7 @@ namespace viWidget {
 
         glViewport(0, 0, _windowSettings.width, _windowSettings.height);
 
-        return window.get();
+        return true;
     }
 
     void viMainWidget::initGui()
@@ -94,44 +98,116 @@ namespace viWidget {
         ImGui_ImplOpenGL3_Init(glsl_version);
     }
 
-
-    void viMainWidget::resizeWindow(GLFWwindow* window, int width, int heigth)
-    {
-        glViewport(0, 0, width, heigth);
-    }
-
     void viMainWidget::initCamera() {
         viewCamera = std::make_shared<viCamera::Camera>(_windowSettings.width, _windowSettings.height);
         glfwSetWindowUserPointer(window.get(), viewCamera.get());
         glfwSetScrollCallback(window.get(), viCamera::Camera::mouseScrollCallback);
     }
 
-    std::shared_ptr<viCamera::Camera> viMainWidget::getCamera() const{
-        return viewCamera;
-    }
-
     void viMainWidget::initShader() {
         cloudShader = std::make_shared<viShader::Shader>("../shader/ver.vs", "../shader/fragment.fs");
-    }
-
-    std::shared_ptr<viShader::Shader> viMainWidget::getShader() const {
-        return cloudShader;
     }
 
     void viMainWidget::initCloudData() {
         cloudData = std::make_shared<viData::viManageData>();
     }
 
-    std::shared_ptr<viData::viManageData> viMainWidget::getCloudData() {
-        return cloudData;
-    }
-
     void viMainWidget::initUI() {
         menuUI = std::make_shared<viUI::viManageUI>(cloudData, viewCamera);
     }
 
+// ============================================================================
+//                              get функции
+// ============================================================================
+    std::shared_ptr<viData::viManageData> viMainWidget::getCloudData() {
+        return cloudData;
+    }
+
     std::shared_ptr<viUI::viManageUI> viMainWidget::getMenu() {
         return menuUI;
+    }
+
+    std::shared_ptr<viShader::Shader> viMainWidget::getShader() const {
+        return cloudShader;
+    }
+
+    std::shared_ptr<viCamera::Camera> viMainWidget::getCamera() const{
+        return viewCamera;
+    }
+
+// ============================================================================
+// ============================================================================
+    void viMainWidget::resizeWindow(GLFWwindow* window, int width, int heigth)
+    {
+        glViewport(0, 0, width, heigth);
+    }
+
+    void viMainWidget::render() {
+        cloudShader->bind();
+
+        unsigned int modelLoc = glGetUniformLocation(cloudShader->ID, "model");
+        unsigned int viewLoc = glGetUniformLocation(cloudShader->ID, "view");
+        unsigned int projectionLoc = glGetUniformLocation(cloudShader->ID, "projection");
+
+        unsigned int colorLoc = glGetUniformLocation(cloudShader->ID, "ourColor");
+        unsigned int useIntensityColorLoc = glGetUniformLocation(cloudShader->ID, "useIntensityColor");
+
+        glfwPollEvents();
+        glClearColor(menuUI->clear_color.x,
+                     menuUI->clear_color.y,
+                     menuUI->clear_color.z,
+                     menuUI->clear_color.w); // Устанавливаем цвет очистки
+
+        glClear(GL_COLOR_BUFFER_BIT); //| GL_DEPTH_BUFFER_BIT);
+
+        if (glfwGetWindowAttrib(window.get(), GLFW_ICONIFIED) != 0)
+        {
+            ImGui_ImplGlfw_Sleep(10);
+            //continue;
+        }
+
+        if(cloudData->viCloud._cloud)
+        {
+            // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+            glBindVertexArray(cloudData->viCloud.buffer.VAO);
+            
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewCamera->moveCamera(window.get())));
+
+            if (!menuUI->show_intensity_color)
+            {
+                glUniform1i(useIntensityColorLoc, menuUI->show_intensity_color);
+
+                glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
+                glDisableVertexAttribArray(1);         // Отключаем атрибут
+
+                glUniform4f(colorLoc, cloudData->viCloud.point_color.x,
+                            cloudData->viCloud.point_color.y,
+                            cloudData->viCloud.point_color.z,
+                            cloudData->viCloud.point_color.w);
+            }
+            else
+            {
+                glUniform1i(useIntensityColorLoc, menuUI->show_intensity_color);
+
+                glEnableVertexAttribArray(1);
+                glVertexAttribDivisor(1, 1);
+            }
+            glDrawArraysInstanced(GL_POINTS, 0, 1, cloudData->viCloud._cloud->size());
+            glBindVertexArray(0);
+            
+            // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            // glBindVertexArray(VAO);
+            // glActiveTexture(GL_TEXTURE0);
+            // glBindTexture(GL_TEXTURE_2D, textureBuffer); // Текстура из вашего фреймбуфера
+            // glDrawArraysInstanced(GL_POINTS, 0, 1,cloud_size);
+        }
+
+        cloudShader->unbind();
+    // Start the Dear ImGui frame
+        menuUI->renderUI(window.get());
+
+        glfwSwapBuffers(window.get());
     }
 
 }

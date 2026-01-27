@@ -7,12 +7,11 @@
 #include <viShader.hpp>
 #include <viData.hpp>
 #include <viUI.hpp>
+#include <optional>
 
 #include "string"
 
 namespace viWidget {
-
-
 // ============================================================================
 // НАСТРОЙКИ И КОНФИГУРАЦИЯ
 // ===========================================================================
@@ -23,32 +22,6 @@ namespace viWidget {
         bool fullscreen = false;
         bool vsync = false;
         int msaaSamples = 4;
-    };
-
-    struct RenderSettings {
-            struct ClearColor {
-                float r = 0.25f;
-                float g = 0.4f;
-                float b = 0.48f;
-                float a = 1.0f;
-            } clearColor;
-            
-            struct PointCloud {
-                struct ColorMode {
-                    bool useIntensity = false;
-                    glm::vec4 uniformColor = {1.0f, 1.0f, 0.0f, 1.0f};
-                } colorMode;
-                
-                float pointSize = 2.0f;
-                bool showBoundingBox = false;
-            } pointCloud;
-            
-            struct Camera {
-                float fov = 75.0f;
-                float nearPlane = 0.1f;
-                float farPlane = 1000.0f;
-                bool usePerspective = true;
-            } camera;
     };
 
 // ============================================================================
@@ -62,22 +35,27 @@ namespace viWidget {
             viMainWidget& operator=(const viMainWidget&) = delete;
             
             viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings) {
-                viewCamera = nullptr;
-                window = nullptr;
-                cloudShader = nullptr;
-                cloudData = nullptr;
-                menuUI = nullptr;
+                if (initMainWindow())
+                {
+                    initGui();
+                    initCamera();
+                    initShader();
+                    initCloudData();
+                    initUI();
+                } else {
+                    std::cout << "Error initMainWindow" << std::endl;
+                }
             };
 
             ~viMainWidget() {
                 ImGui_ImplOpenGL3_Shutdown();
                 ImGui_ImplGlfw_Shutdown();
                 ImGui::DestroyContext();
+
+                glfwTerminate();
             };
 
-            //void initialize(); // запихаю сюда все функциии c именем init
-
-            GLFWwindow* initMainWindow();
+            std::optional<bool>  initMainWindow();
             void initCamera();
             void initGui();
             void initShader();
@@ -86,10 +64,13 @@ namespace viWidget {
 
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
 
+            void render();
+
             std::shared_ptr<viCamera::Camera> getCamera() const;
             std::shared_ptr<viShader::Shader> getShader() const;
             std::shared_ptr<viData::viManageData> getCloudData();
             std::shared_ptr<viUI::viManageUI> getMenu();
+            GLFWwindow* getWindow() { return window.get();};
 
         private:
             std::shared_ptr<GLFWwindow> window;

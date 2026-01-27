@@ -20,6 +20,7 @@ namespace viData {
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud = nullptr;
         std::vector<float> intensity;
+        glm::vec4 point_color = glm::vec4(1.f, 1.f, 0.f, 1.0f);
 
         struct Buffer
         {
