@@ -25,7 +25,7 @@ make
 
 ### Run
 ```bash
-./main
+./virtuosa
 ```
 
 ## 🎮 Camera Controls for perspective projection
