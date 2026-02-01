@@ -145,12 +145,6 @@ namespace viWidget {
     void viMainWidget::render() {
         cloudShader->bind();
 
-        unsigned int mvpLoc = glGetUniformLocation(cloudShader->ID, "mvpMatrix");
-
-
-        unsigned int colorLoc = glGetUniformLocation(cloudShader->ID, "ourColor");
-        unsigned int useIntensityColorLoc = glGetUniformLocation(cloudShader->ID, "useIntensityColor");
-
         glfwPollEvents();
         glClearColor(menuUI->clear_color.x,
                      menuUI->clear_color.y,
@@ -162,7 +156,6 @@ namespace viWidget {
         if (glfwGetWindowAttrib(window.get(), GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
-            //continue;
         }
 
         if(cloudData->viCloud._cloud)
@@ -171,23 +164,23 @@ namespace viWidget {
 
             glBindVertexArray(cloudData->viCloud.buffer.VAO);
             
-            glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(viewCamera->moveCamera(window.get())));
+            cloudShader->setShaderMatrix4fv("mvpMatrix", viewCamera->moveCamera(window.get()));
 
             if (!menuUI->show_intensity_color)
             {
-                glUniform1i(useIntensityColorLoc, menuUI->show_intensity_color);
+                cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
 
                 glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
                 glDisableVertexAttribArray(1);         // Отключаем атрибут
 
-                glUniform4f(colorLoc, cloudData->viCloud.point_color.x,
-                            cloudData->viCloud.point_color.y,
-                            cloudData->viCloud.point_color.z,
-                            cloudData->viCloud.point_color.w);
+                cloudShader->setShaderMatrix4f("ourColor", cloudData->viCloud.point_color.x,
+                                                         cloudData->viCloud.point_color.y,
+                                                         cloudData->viCloud.point_color.z,
+                                                         cloudData->viCloud.point_color.w);
             }
             else
             {
-                glUniform1i(useIntensityColorLoc, menuUI->show_intensity_color);
+                cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
 
                 glEnableVertexAttribArray(1);
                 glVertexAttribDivisor(1, 1);

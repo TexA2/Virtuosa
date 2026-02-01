@@ -109,3 +109,42 @@ using namespace viShader;
     void Shader::unbind() {
         glUseProgram(0);
     }
+
+    bool Shader::setUniformCashe(const std::string& name) {
+
+        if (uniformCache.find(name) == uniformCache.end())
+        {
+            uint location = glGetUniformLocation(ID, name.c_str());
+            if (location != -1)
+            {
+                uniformCache[name] = location;
+                std::cerr << "Uniform " << name << " ADD in shader cache!" << std::endl; 
+                return true;
+            }
+            else
+            {
+                std::cerr << "Uniform " << name << " NOT found in shader!" << std::endl; 
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void Shader::setShaderMatrix4fv(const std::string& name, const glm::mat4& data) {
+        if(setUniformCashe(name))
+            glUniformMatrix4fv(uniformCache[name], 1, GL_FALSE, glm::value_ptr(data));
+    }
+
+    void Shader::setShader1i(const std::string& name, const int data) {
+        if(setUniformCashe(name))
+            glUniform1i(uniformCache[name], data);
+    }
+
+    void Shader::setShaderMatrix4f(const std::string& name, const float data1,
+                           const float data2, const float data3, const float data4) {
+        if(setUniformCashe(name))
+                glUniform4f(uniformCache[name], data1,
+                            data2,
+                            data3,
+                            data4);
+    }

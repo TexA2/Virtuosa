@@ -21,7 +21,10 @@ namespace viUI {
                         _cloudData(cloudData),
                         _viewCamera(viewCamera)
                         {
-                            clear_color = glm::vec4(0.25f, 0.4f, 0.48f, 1.00f);
+                            clear_color = glm::vec4(20.0f / 255.0f,
+                                                    13.0f / 255.0f,
+                                                    24.0f / 255.0f,
+                                                    1.00f);
                         }
 
             ~viManageUI() = default;

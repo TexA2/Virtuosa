@@ -52,15 +52,15 @@ target_include_directories(nfd PUBLIC
     ${NFD_DIR}/include
 )
 
-# Настройка для OpenGL3 (используем glad вместо GLEW)
+# Настройка для OpenGL (используем glad вместо GLEW)
 target_compile_definitions(imgui PRIVATE 
     IMGUI_IMPL_OPENGL_LOADER_GLAD
 )
 
-add_executable(main main.cpp src/viShader.cpp src/viCamera.cpp src/viWidget.cpp src/viData.cpp src/viUI.cpp)
+add_executable(virtuosa main.cpp src/viShader.cpp src/viCamera.cpp src/viWidget.cpp src/viData.cpp src/viUI.cpp)
 
 # Добавляем директории включаемых файлов
-target_include_directories(main PRIVATE  
+target_include_directories(virtuosa PRIVATE  
     ${GLAD_INCLUDE_PATH}
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
@@ -71,7 +71,7 @@ target_include_directories(main PRIVATE
 )
 
 # Связываем библиотеки
-target_link_libraries(main 
+target_link_libraries(virtuosa 
     OpenGL::GL 
     glfw 
     glad 
