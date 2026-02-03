@@ -1,5 +1,6 @@
 #include <viCamera.hpp>
 #include <iostream>
+#include <viWidget.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
@@ -131,13 +132,13 @@ using namespace viCamera;
 
         if (ptr)
         {
-            Camera* camera = static_cast<Camera*>(ptr);
-            camera->processMouseMovement(xpos, ypos);
+            viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
+            widget->getCamera()->processMouseMovement(xpos, ypos);
 
             int width, height;
             glfwGetWindowSize(window, &width, &height);
-            camera->setWindowSize(width, height);
-            camera->setXYPose(xpos, ypos);
+            widget->getCamera()->setWindowSize(width, height);
+            widget->getCamera()->setXYPose(xpos, ypos);
         }
     }
 

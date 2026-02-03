@@ -22,6 +22,7 @@ namespace viWidget {
         bool fullscreen = false;
         bool vsync = false;
         int msaaSamples = 4;
+        float objectPanelWidth = 0.1f;
     };
 
 // ============================================================================

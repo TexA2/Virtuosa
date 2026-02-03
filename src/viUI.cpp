@@ -1,4 +1,5 @@
 #include <viUI.hpp>
+#include "viWidget.hpp" 
 
 namespace viUI {
 
@@ -67,6 +68,27 @@ namespace viUI {
         }
     }
 
+    void viManageUI::showObjectPanel() {
+
+        float menuBarHeight = ImGui::GetFrameHeight();
+
+        float renderAreaHeight = _windowsSetting.height - menuBarHeight;
+        ImGui::SetNextWindowPos(ImVec2(0, menuBarHeight));
+        ImGui::SetNextWindowSize(ImVec2(_windowsSetting.width * _windowsSetting.objectPanelWidth,
+                                                renderAreaHeight));
+
+        ImGui::Begin("Objects Panel", nullptr, 
+            ImGuiWindowFlags_NoTitleBar | 
+            ImGuiWindowFlags_NoResize | 
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoCollapse);
+
+        ImGui::Text("Render Objects");
+        ImGui::Separator();
+
+        ImGui::End();
+    }
+
 
     void viManageUI::renderUI(GLFWwindow* window) {
         ImGui_ImplOpenGL3_NewFrame();
@@ -75,7 +97,7 @@ namespace viUI {
 
 
         ShowExampleAppMainMenuBar();
-
+        showObjectPanel();
 
         if (show_BackroundColor)
         {
@@ -131,7 +153,4 @@ namespace viUI {
                     temp_camera->resetFirstMouse(); }
         }
     }
-
-                    // if(auto temp_cloudData = _cloudData.lock())
-                    // temp_cloudData->pointCloudOpen(outPath);
 }

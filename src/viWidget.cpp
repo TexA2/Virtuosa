@@ -65,7 +65,7 @@ namespace viWidget {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
-        glViewport(0, 0, _windowSettings.width, _windowSettings.height);
+        glViewport(_windowSettings.width * _windowSettings.objectPanelWidth, 0, _windowSettings.width, _windowSettings.height);
 
         return true;
     }
@@ -100,7 +100,7 @@ namespace viWidget {
 
     void viMainWidget::initCamera() {
         viewCamera = std::make_shared<viCamera::Camera>(_windowSettings.width, _windowSettings.height);
-        glfwSetWindowUserPointer(window.get(), viewCamera.get());
+        glfwSetWindowUserPointer(window.get(), this);
         glfwSetScrollCallback(window.get(), viCamera::Camera::mouseScrollCallback);
     }
 
@@ -113,7 +113,7 @@ namespace viWidget {
     }
 
     void viMainWidget::initUI() {
-        menuUI = std::make_shared<viUI::viManageUI>(cloudData, viewCamera);
+        menuUI = std::make_shared<viUI::viManageUI>(cloudData, viewCamera, _windowSettings);
     }
 
 // ============================================================================
@@ -139,7 +139,11 @@ namespace viWidget {
 // ============================================================================
     void viMainWidget::resizeWindow(GLFWwindow* window, int width, int heigth)
     {
-        glViewport(0, 0, width, heigth);
+        viMainWidget* widget = static_cast<viMainWidget*>(glfwGetWindowUserPointer(window));
+        widget->_windowSettings.width = width;
+        widget->_windowSettings.height = heigth;
+
+        glViewport(width *   widget->_windowSettings.objectPanelWidth, 0, width, heigth);
     }
 
     void viMainWidget::render() {
