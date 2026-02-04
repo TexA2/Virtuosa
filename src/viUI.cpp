@@ -86,6 +86,22 @@ namespace viUI {
         ImGui::Text("Render Objects");
         ImGui::Separator();
 
+        if (auto temp_cloudData = _cloudData.lock())
+            for (const auto& pair : temp_cloudData->cloudCache)
+            {
+                ImGui::PushID(&pair);
+
+                // Отображаем объект как кликабельную кнопку/элемент
+                if (ImGui::Selectable(pair.first.c_str(), pair.second->isSelected)) {
+                    pair.second->isVisible = !pair.second->isVisible;
+                    //создаем меню с управлением настроек отображения облака
+                    //цвета, видимость, размер точек, интенсивность
+                    // внизу панельки
+                }
+
+                ImGui::PopID();
+            }
+
         ImGui::End();
     }
 
@@ -112,8 +128,13 @@ namespace viUI {
             ImGui::Begin("Point Cloud COlor Render", &show_pointColor);
 
             if(auto temp_cloudData = _cloudData.lock())
-                ImGui::ColorEdit3("clear color", (float*)&temp_cloudData->viCloud.point_color);
+                for (const auto& pair : temp_cloudData->cloudCache)
+                {
+                    // TODO : логика по выбранну элементу
+                    ImGui::ColorEdit3("points color", (float*)&pair.second->point_color);
+                }
 
+            // TODO : интенсивность надо брать у data
             ImGui::Checkbox("Intensity", &show_intensity_color);  
             ImGui::End();
         }

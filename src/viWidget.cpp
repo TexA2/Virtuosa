@@ -162,42 +162,44 @@ namespace viWidget {
             ImGui_ImplGlfw_Sleep(10);
         }
 
-        if(cloudData->viCloud._cloud)
-        {
-            // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-            glBindVertexArray(cloudData->viCloud.buffer.VAO);
-            
-            cloudShader->setShaderMatrix4fv("mvpMatrix", viewCamera->moveCamera(window.get()));
-
-            if (!menuUI->show_intensity_color)
+        for (auto& pair : cloudData->cloudCache)
             {
-                cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
+                if (pair.second->isVisible) 
+                {
+                    // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+                    glBindVertexArray(pair.second->buffer.VAO);
+                    
+                    cloudShader->setShaderMatrix4fv("mvpMatrix", viewCamera->moveCamera(window.get()));
 
-                glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
-                glDisableVertexAttribArray(1);         // Отключаем атрибут
+                    if (!menuUI->show_intensity_color)
+                    {
+                        cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
 
-                cloudShader->setShaderMatrix4f("ourColor", cloudData->viCloud.point_color.x,
-                                                         cloudData->viCloud.point_color.y,
-                                                         cloudData->viCloud.point_color.z,
-                                                         cloudData->viCloud.point_color.w);
+                        glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
+                        glDisableVertexAttribArray(1);         // Отключаем атрибут
+
+                        cloudShader->setShaderMatrix4f("ourColor", pair.second->point_color.x,
+                                                                pair.second->point_color.y,
+                                                                pair.second->point_color.z,
+                                                                pair.second->point_color.w);
+                    }
+                    else
+                    {
+                        cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
+
+                        glEnableVertexAttribArray(1);
+                        glVertexAttribDivisor(1, 1);
+                    }
+                    glDrawArraysInstanced(GL_POINTS, 0, 1, pair.second->_cloud->size());
+                    glBindVertexArray(0);
+                    
+                    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                    // glBindVertexArray(VAO);
+                    // glActiveTexture(GL_TEXTURE0);
+                    // glBindTexture(GL_TEXTURE_2D, textureBuffer); // Текстура из вашего фреймбуфера
+                    // glDrawArraysInstanced(GL_POINTS, 0, 1,cloud_size);
+                }
             }
-            else
-            {
-                cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
-
-                glEnableVertexAttribArray(1);
-                glVertexAttribDivisor(1, 1);
-            }
-            glDrawArraysInstanced(GL_POINTS, 0, 1, cloudData->viCloud._cloud->size());
-            glBindVertexArray(0);
-            
-            // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            // glBindVertexArray(VAO);
-            // glActiveTexture(GL_TEXTURE0);
-            // glBindTexture(GL_TEXTURE_2D, textureBuffer); // Текстура из вашего фреймбуфера
-            // glDrawArraysInstanced(GL_POINTS, 0, 1,cloud_size);
-        }
 
         cloudShader->unbind();
     // Start the Dear ImGui frame
