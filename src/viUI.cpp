@@ -61,7 +61,6 @@ namespace viUI {
         if (ImGui::MenuItem("Save", "Ctrl+S")) {}
         if (ImGui::MenuItem("Save As..")) {}
         if (ImGui::MenuItem("Background Color")) {show_BackroundColor = true;}
-        if (ImGui::MenuItem("Point Color")) {   show_pointColor = true;}
         ImGui::Separator();
         if (ImGui::MenuItem("Quit", "Alt+F4")) {
             buttonQuit = true;
@@ -83,24 +82,82 @@ namespace viUI {
             ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoCollapse);
 
-        ImGui::Text("Render Objects");
-        ImGui::Separator();
 
-        if (auto temp_cloudData = _cloudData.lock())
-            for (const auto& pair : temp_cloudData->cloudCache)
+        // === ВЕРХНЯЯ ОБЛАСТЬ (25% высоты) ===
+            float topHeight = ImGui::GetContentRegionAvail().y * 0.25f;
+
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+
+            ImGui::BeginChild("Top Region", ImVec2(0, topHeight), true, 
+                                            ImGuiWindowFlags_NoScrollbar);
             {
-                ImGui::PushID(&pair);
 
-                // Отображаем объект как кликабельную кнопку/элемент
-                if (ImGui::Selectable(pair.first.c_str(), pair.second->isSelected)) {
-                    pair.second->isVisible = !pair.second->isVisible;
-                    //создаем меню с управлением настроек отображения облака
-                    //цвета, видимость, размер точек, интенсивность
-                    // внизу панельки
+            ImGui::PopStyleColor();
+
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+            ImGui::Text("Render Objects");
+            ImGui::Separator();
+
+            if (auto temp_cloudData = _cloudData.lock())
+                for (const auto& pair : temp_cloudData->cloudCache)
+                {
+                    ImGui::PushID(&pair);
+
+                    bool isSelected = (selectedCloudId == pair.first);
+                    pair.second->isSelected = isSelected;
+
+                    if (ImGui::Selectable(pair.first.c_str(), isSelected)) 
+                    {
+                        if (isSelected)
+                        {
+                            selectedCloudId.clear();
+                            pair.second->isSelected = false;
+                        }
+                        else
+                        {
+                            selectedCloudId = pair.first;
+                            for (auto& otherPair : temp_cloudData->cloudCache)
+                                otherPair.second->isSelected = (otherPair.first == pair.first);
+                        }
+                    }
+
+                    ImGui::PopID();
                 }
 
-                ImGui::PopID();
             }
+            ImGui::PopStyleColor();
+            ImGui::EndChild();
+
+        // === НИЖНЯЯ ОБЛАСТЬ (25% высоты) ===
+            ImVec2 child_pos = ImVec2(10, renderAreaHeight - (renderAreaHeight - ImGui::GetContentRegionAvail().y));
+            ImGui::SetCursorPos(child_pos);
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+
+            if (ImGui::BeginChild("Child", ImVec2(0, topHeight), true,
+                ImGuiWindowFlags_NoScrollbar) )
+            {
+                ImGui::PopStyleColor();
+
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::Text("Setting Objects");
+                ImGui::Separator();
+
+                if (!selectedCloudId.empty())
+                {
+                    if (auto temp_cloudData = _cloudData.lock())
+                    {
+                        ImGui::Checkbox("Visible", &temp_cloudData->cloudCache[selectedCloudId]->isVisible);
+                        ImGui::Checkbox("Intensity color", &temp_cloudData->cloudCache[selectedCloudId]->intensityColor); 
+
+                        if (ImGui::Button("Color Setting")) show_pointColor = !show_pointColor;
+                    }
+                }
+
+
+            }
+            ImGui::PopStyleColor();
+            ImGui::EndChild();
 
         ImGui::End();
     }
@@ -126,16 +183,8 @@ namespace viUI {
         if(show_pointColor)
         {
             ImGui::Begin("Point Cloud COlor Render", &show_pointColor);
-
-            if(auto temp_cloudData = _cloudData.lock())
-                for (const auto& pair : temp_cloudData->cloudCache)
-                {
-                    // TODO : логика по выбранну элементу
-                    ImGui::ColorEdit3("points color", (float*)&pair.second->point_color);
-                }
-
-            // TODO : интенсивность надо брать у data
-            ImGui::Checkbox("Intensity", &show_intensity_color);  
+            if (auto temp_cloudData = _cloudData.lock())
+                ImGui::ColorEdit3("points color", (float*)&temp_cloudData->cloudCache[selectedCloudId]->point_color);
             ImGui::End();
         }
 

@@ -171,9 +171,9 @@ namespace viWidget {
                     
                     cloudShader->setShaderMatrix4fv("mvpMatrix", viewCamera->moveCamera(window.get()));
 
-                    if (!menuUI->show_intensity_color)
+                    if (!pair.second->intensityColor)
                     {
-                        cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
+                        cloudShader->setShader1i("useIntensityColor", pair.second->intensityColor);
 
                         glVertexAttribDivisor(1, 0);           // Отключаем инстансинг
                         glDisableVertexAttribArray(1);         // Отключаем атрибут
@@ -185,7 +185,7 @@ namespace viWidget {
                     }
                     else
                     {
-                        cloudShader->setShader1i("useIntensityColor", menuUI->show_intensity_color);
+                        cloudShader->setShader1i("useIntensityColor", pair.second->intensityColor);
 
                         glEnableVertexAttribArray(1);
                         glVertexAttribDivisor(1, 1);

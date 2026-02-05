@@ -29,6 +29,7 @@ namespace viData {
         //создать струкру настройки и запихать туда данные
         bool isSelected = false;
         bool isVisible = true;
+        bool intensityColor = true;
 
 
         struct Buffer

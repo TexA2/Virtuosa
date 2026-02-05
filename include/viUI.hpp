@@ -47,13 +47,14 @@ namespace viUI {
             bool show_BackroundColor = false;
             bool show_pointColor = false;
             bool buttonQuit = false;
-            bool show_intensity_color = true;
 
             glm::vec4 clear_color; // потом в рендер
         private:
             std::weak_ptr<viData::viManageData> _cloudData;
             std::weak_ptr<viCamera::Camera> _viewCamera;
             viWidget::WindowSettings& _windowsSetting;
+
+             std::string selectedCloudId;
     };
 }
 
