@@ -129,12 +129,24 @@ namespace viUI {
             ImGui::PopStyleColor();
             ImGui::EndChild();
 
-        // === НИЖНЯЯ ОБЛАСТЬ (25% высоты) ===
-            ImVec2 child_pos = ImVec2(10, renderAreaHeight - (renderAreaHeight - ImGui::GetContentRegionAvail().y));
-            ImGui::SetCursorPos(child_pos);
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+        // == ЦЕНТРАЛЬНАЯ ОБЛАСТЬ (50%)
+            float middleHeight = ImGui::GetContentRegionAvail().y * 0.50f;
+            if (ImGui::BeginChild("Mid Region", ImVec2(0, middleHeight), true,
+                ImGuiWindowFlags_NoScrollbar) )
+            {
+                ImVec2 buttonSize = ImVec2(100, 64);
+                ImGui::BeginGroup();
+                    ModeButton("View", Mode::viewMode, curMode, buttonSize);
+                    ModeButton("Select", Mode::selectMode, curMode, buttonSize);
+                    ModeButton("Transform", Mode::transformMode, curMode, buttonSize);
+                ImGui::EndGroup();
+            }
+            ImGui::EndChild();
+        
 
-            if (ImGui::BeginChild("Child", ImVec2(0, topHeight), true,
+        // === НИЖНЯЯ ОБЛАСТЬ (25% высоты) ===
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+            if (ImGui::BeginChild("Bot Region", ImVec2(0, 0), true,
                 ImGuiWindowFlags_NoScrollbar) )
             {
                 ImGui::PopStyleColor();
@@ -160,6 +172,22 @@ namespace viUI {
             ImGui::EndChild();
 
         ImGui::End();
+    }
+
+
+    void viManageUI::ModeButton(const char* label, Mode buttonMode, Mode& curMode, const ImVec2& size) {
+        bool isActive = (curMode == buttonMode);
+
+        if (isActive)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.6f, 0.3f, 1.0f));
+        }
+        
+        if (ImGui::Button(label, size)) curMode = buttonMode;
+        
+        if (isActive) ImGui::PopStyleColor(2);
+
     }
 
 
@@ -222,5 +250,7 @@ namespace viUI {
                 if(auto temp_camera = _viewCamera.lock()) 
                     temp_camera->resetFirstMouse(); }
         }
+
+        std::cout << "Current Mode " << static_cast<int>(curMode) << std::endl;
     }
 }

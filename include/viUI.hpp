@@ -17,6 +17,11 @@ namespace viWidget
     struct WindowSettings;
 } 
 
+enum class Mode : uint8_t { 
+    viewMode,
+    selectMode,
+    transformMode
+};
 
 namespace viUI {
 
@@ -33,6 +38,8 @@ namespace viUI {
                                                     13.0f / 255.0f,
                                                     24.0f / 255.0f,
                                                     1.00f);
+
+                            curMode = Mode::viewMode;
                         }
 
             ~viManageUI() = default;
@@ -42,6 +49,7 @@ namespace viUI {
             void ShowExampleMenuFile();
             void showObjectPanel();
             void renderUI(GLFWwindow* window);
+            void ModeButton(const char* label, Mode buttonMode, Mode& curMode, const ImVec2& size);
 
 
             bool show_BackroundColor = false;
@@ -54,7 +62,9 @@ namespace viUI {
             std::weak_ptr<viCamera::Camera> _viewCamera;
             viWidget::WindowSettings& _windowsSetting;
 
-             std::string selectedCloudId;
+            std::string selectedCloudId;
+
+            Mode curMode;
     };
 }
 
