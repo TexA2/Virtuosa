@@ -218,8 +218,8 @@ using namespace viCamera;
 
     void Camera::rayCast(GLFWwindow* window, double xpos, double ypos) {
 
-         void* ptr = glfwGetWindowUserPointer(window);
-         double adjustedX = 0;
+        void* ptr = glfwGetWindowUserPointer(window);
+        double adjustedX = 0;
 
         if (ptr)
         {
@@ -233,4 +233,23 @@ using namespace viCamera;
         std::cout << "Screen: (" << xpos << ", " << ypos << ")" << std::endl;
         std::cout << "NDC: (" << ndcX << ", " << ndcY << ")" << std::endl;
         std::cout << "Render area size: " << _width << " x " << _height << std::endl;
+
+        // NDC → Clip Space
+        glm::vec4 rayClip(ndcX, ndcY, -1.0f, 1.0f);
+
+        // Clip Space → Eye Space (View Space)
+        glm::vec4 rayEye = glm::inverse(projection) * rayClip;
+        rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+
+        // Eye Space → World Space
+        glm::vec3 rayWorld = glm::vec3(glm::inverse(lookAt) * rayEye);
+        rayWorld = glm::normalize(rayWorld);
+
+        glm::vec3 rayOrigin = _cameraSettings.cameraSpace.cameraPos;
+
+        // 7. Теперь можно выполнять тесты на пересечение с облаками точек
+        std::cout << "Ray Origin: (" << rayOrigin.x << ", " << rayOrigin.y << ", " << rayOrigin.z << ")" << std::endl;
+        std::cout << "Ray Direction: (" << rayWorld.x << ", " << rayWorld.y << ", " << rayWorld.z << ")" << std::endl;
+
+        std::cout << std::endl;
     }

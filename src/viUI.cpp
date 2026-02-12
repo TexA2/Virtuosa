@@ -217,7 +217,6 @@ namespace viUI {
         {
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            std::cout << xpos << " " << ypos << std::endl;
 
             if(auto temp_camera = _viewCamera.lock())
                 temp_camera->rayCast(window, xpos, ypos);
