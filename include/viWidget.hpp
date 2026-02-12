@@ -63,6 +63,8 @@ namespace viWidget {
             void initCloudData();
             void initUI();
 
+            float getObjectPanelWidth() { return _windowSettings.objectPanelWidth; }
+
             static void resizeWindow(GLFWwindow* window, int width, int heigth);
 
             void render();

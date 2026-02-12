@@ -137,7 +137,7 @@ using namespace viCamera;
 
             int width, height;
             glfwGetWindowSize(window, &width, &height);
-            widget->getCamera()->setWindowSize(width, height);
+
             widget->getCamera()->setXYPose(xpos, ypos);
         }
     }
@@ -214,4 +214,23 @@ using namespace viCamera;
 
     glm::mat4 Camera::getMvpMatrix() {
         return model * projection * lookAt;
+    }
+
+    void Camera::rayCast(GLFWwindow* window, double xpos, double ypos) {
+
+         void* ptr = glfwGetWindowUserPointer(window);
+         double adjustedX = 0;
+
+        if (ptr)
+        {
+            viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
+            adjustedX = xpos - (_width * widget->getObjectPanelWidth());
+        }
+
+        float ndcX  = (2.f * adjustedX) /  _width - 1.0f;
+        float ndcY  = 1.f - (2.f * ypos) / _height;
+
+        std::cout << "Screen: (" << xpos << ", " << ypos << ")" << std::endl;
+        std::cout << "NDC: (" << ndcX << ", " << ndcY << ")" << std::endl;
+        std::cout << "Render area size: " << _width << " x " << _height << std::endl;
     }

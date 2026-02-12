@@ -190,6 +190,39 @@ namespace viUI {
 
     }
 
+    void viManageUI::viewMode(GLFWwindow* window) {
+        ImGuiIO& io = ImGui::GetIO();
+        bool mouseOverImGui = io.WantCaptureMouse;
+        
+        int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+        bool isMousePressed = (mouseState == GLFW_PRESS);
+
+        if (!mouseOverImGui)
+        {
+            if (isMousePressed)
+            {
+                double xpos, ypos;
+                glfwGetCursorPos(window, &xpos, &ypos);
+                if(auto temp_camera = _viewCamera.lock())
+                    temp_camera->mouseMoveCallback(window,  xpos,  ypos);
+            } else {
+                if(auto temp_camera = _viewCamera.lock()) 
+                    temp_camera->resetFirstMouse(); }
+        }
+    }
+
+    void viManageUI::selectMode(GLFWwindow* window) {
+        ImGuiIO& io = ImGui::GetIO();
+        if (!io.WantCaptureMouse && io.MouseClicked[0])
+        {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            std::cout << xpos << " " << ypos << std::endl;
+
+            if(auto temp_camera = _viewCamera.lock())
+                temp_camera->rayCast(window, xpos, ypos);
+        }
+    }
 
     void viManageUI::renderUI(GLFWwindow* window) {
         ImGui_ImplOpenGL3_NewFrame();
@@ -207,7 +240,7 @@ namespace viUI {
             ImGui::End();
         }
 
-
+        //TODO: Баг если открыто окно и снять select с облака точек, то программа умерт
         if(show_pointColor)
         {
             ImGui::Begin("Point Cloud COlor Render", &show_pointColor);
@@ -216,41 +249,20 @@ namespace viUI {
             ImGui::End();
         }
 
-
         if(buttonQuit) {
             glfwSetWindowShouldClose(window, true);
         }
 
-
-
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // 1. Получаем состояние мыши
-        ImGuiIO& io = ImGui::GetIO();
-        bool mouseOverImGui = io.WantCaptureMouse;
-        
-        // 2. Проверяем нажатие левой кнопки мыши
-        static bool wasMousePressed = false;
-        int mouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-        bool isMousePressed = (mouseState == GLFW_PRESS);
+        // Режим работы и сигналы от мышки
+        if (curMode == Mode::viewMode) viewMode(window);
 
+        if (curMode == Mode::selectMode) selectMode(window);
 
-        if (!mouseOverImGui)
-        {
-            if (isMousePressed)
-            {
-                double xpos, ypos;
-                glfwGetCursorPos(window, &xpos, &ypos);
-
-                if(auto temp_camera = _viewCamera.lock())
-                    temp_camera->mouseMoveCallback(window,  xpos,  ypos);
-
-            } else {
-                if(auto temp_camera = _viewCamera.lock()) 
-                    temp_camera->resetFirstMouse(); }
-        }
-
-        std::cout << "Current Mode " << static_cast<int>(curMode) << std::endl;
+        if (curMode == Mode::transformMode)
+        { std::cout << "Cur mode transformMode" << std::endl; }
     }
+
 }

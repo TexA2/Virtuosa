@@ -50,13 +50,15 @@ namespace viUI {
             void showObjectPanel();
             void renderUI(GLFWwindow* window);
             void ModeButton(const char* label, Mode buttonMode, Mode& curMode, const ImVec2& size);
+            void viewMode(GLFWwindow* window);
+            void selectMode(GLFWwindow* window);
 
 
             bool show_BackroundColor = false;
             bool show_pointColor = false;
             bool buttonQuit = false;
 
-            glm::vec4 clear_color; // потом в рендер
+            glm::vec4 clear_color;
         private:
             std::weak_ptr<viData::viManageData> _cloudData;
             std::weak_ptr<viCamera::Camera> _viewCamera;

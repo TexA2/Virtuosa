@@ -65,8 +65,6 @@ namespace viWidget {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
-        glViewport(_windowSettings.width * _windowSettings.objectPanelWidth, 0, _windowSettings.width, _windowSettings.height);
-
         return true;
     }
 
@@ -102,6 +100,9 @@ namespace viWidget {
         viewCamera = std::make_shared<viCamera::Camera>(_windowSettings.width, _windowSettings.height);
         glfwSetWindowUserPointer(window.get(), this);
         glfwSetScrollCallback(window.get(), viCamera::Camera::mouseScrollCallback);
+
+        glViewport(_windowSettings.width * getObjectPanelWidth(), 0, _windowSettings.width, _windowSettings.height);
+        viewCamera->setWindowSize(_windowSettings.width - _windowSettings.width * getObjectPanelWidth(), _windowSettings.height);
     }
 
     void viMainWidget::initShader() {
@@ -143,7 +144,8 @@ namespace viWidget {
         widget->_windowSettings.width = width;
         widget->_windowSettings.height = heigth;
 
-        glViewport(width *   widget->_windowSettings.objectPanelWidth, 0, width, heigth);
+        glViewport(width * widget->getObjectPanelWidth(), 0, width, heigth);
+        widget->viewCamera->setWindowSize(width - width * widget->getObjectPanelWidth(), heigth);
     }
 
     void viMainWidget::render() {
