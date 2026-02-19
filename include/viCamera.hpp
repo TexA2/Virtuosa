@@ -86,6 +86,9 @@ namespace viCamera {
      static void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
      static void mouseZoomCallback(double xpos, double ypos);
      static void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+
+     uint rayBuffer;
      
         private:
 
@@ -120,7 +123,7 @@ namespace viCamera {
 
             float scale; // увеличивайте этот коэффициент для увеличения
 
-            uint rayBuffer;
+            //uint rayBuffer;
     };
 }
 

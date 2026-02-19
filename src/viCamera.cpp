@@ -259,9 +259,9 @@ using namespace viCamera;
 
         glm::vec3 rayOrigin = _cameraSettings.cameraSpace.cameraPos;
 
-        rayData.RayOrigin = rayWorld;
-        rayData.RayDirection = _cameraSettings.cameraSpace.cameraFront;
-        rayData.threshold = 1.f;
+        rayData.RayOrigin = _cameraSettings.cameraSpace.cameraPos;
+        rayData.RayDirection = rayWorld;;
+        rayData.threshold = 1000.f;
 
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);

@@ -226,7 +226,17 @@ namespace viUI {
 
                 int pointCount = -1;
                 if(auto temp_cloudData = _cloudData.lock())
+                {
                     pointCount = temp_cloudData->cloudCache.begin()->second->_cloud->points.size();
+                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0,  temp_cloudData->cloudCache.begin()->second->buffer.SSBO);
+                }
+
+                if(auto temp_camera = _viewCamera.lock())
+                {
+                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, temp_camera->rayBuffer);
+                }
+
+                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, resultBuffer);
 
                 std::cout << "count " << pointCount << std::endl;
 
@@ -258,8 +268,10 @@ namespace viUI {
 if (result.foundPoint) {
     printf("Найденная точка: индекс %d, расстояние %f\n", 
            result.selectedIndex, sqrt(result.minDistance));
+           std::cout << "result.debugCounter " << result.debugCounter << std::endl;
     } else {
         printf("Точки не найдены\n");
+        std::cout << "result.debugCounter " << result.debugCounter << std::endl;
     }
         }
     }
