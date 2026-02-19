@@ -8,7 +8,19 @@
 
 using namespace viCamera;
 
-    void Camera::zoomCamera(double yoffset){
+    void Camera::bufferinit() {
+
+        rayData.RayDirection = glm::vec3(1.f);
+        rayData.RayOrigin = glm::vec3(1.f);
+        rayData.threshold = 1.0f;
+
+        glGenBuffers(1, &rayBuffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER,  sizeof(RayData), &rayData, GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, rayBuffer);
+    }
+
+    void Camera::zoomCamera(double yoffset) {
         float zoomSpeed = getCameraSpeed().scrool * deltaTime;
 
         getCameraSpace().cameraPos += getCameraSpace().cameraFront * (float)yoffset * zoomSpeed;
@@ -247,9 +259,13 @@ using namespace viCamera;
 
         glm::vec3 rayOrigin = _cameraSettings.cameraSpace.cameraPos;
 
-        // 7. Теперь можно выполнять тесты на пересечение с облаками точек
-        std::cout << "Ray Origin: (" << rayOrigin.x << ", " << rayOrigin.y << ", " << rayOrigin.z << ")" << std::endl;
-        std::cout << "Ray Direction: (" << rayWorld.x << ", " << rayWorld.y << ", " << rayWorld.z << ")" << std::endl;
+        rayData.RayOrigin = rayWorld;
+        rayData.RayDirection = _cameraSettings.cameraSpace.cameraFront;
+        rayData.threshold = 1.f;
 
-        std::cout << std::endl;
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(RayData), &rayData);
+
+        // по сути можно еще сбросить результат data
     }

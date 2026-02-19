@@ -33,6 +33,12 @@ namespace viCamera {
         } cameraSpeed;
     };
 
+    struct RayData {
+        glm::vec3 RayOrigin;
+        glm::vec3 RayDirection;
+        float threshold;
+    };
+
     class Camera{
         public:
             Camera(int width, int height , const CameraSettings& cameraSettings = {}) 
@@ -41,6 +47,8 @@ namespace viCamera {
                                                     _projectionType(ProjectType::Perspective)
 
             {
+                bufferinit();
+
                 model = glm::mat4(1.0f);
                 lookAt = glm::mat4(1.f);
                 currentOrient = glm::quat(1, 0, 0, 0);
@@ -54,6 +62,8 @@ namespace viCamera {
 
             ~Camera() = default;
 
+
+            void bufferinit();
             glm::mat4 moveCamera(GLFWwindow *window);
             void zoomCamera(double yoffset);
             void processMouseMovement(double xpos, double ypos);
@@ -81,6 +91,7 @@ namespace viCamera {
 
             CameraSettings _cameraSettings;
             ProjectType _projectionType;
+            RayData rayData;
 
             glm::mat4 model;
             glm::mat4 projection;
@@ -108,6 +119,8 @@ namespace viCamera {
             float lastFrame; // время последнего кадра
 
             float scale; // увеличивайте этот коэффициент для увеличения
+
+            uint rayBuffer;
     };
 }
 

@@ -1,0 +1,80 @@
+#version 450 core
+
+layout (local_size_x = 256) in;
+
+struct PointData {
+    vec3 position;
+    float intensity;
+};
+
+layout(std430, binding = 0) buffer CloudBuffer {
+    PointData points[];
+} cloud;
+
+layout(std430, binding = 1) readonly buffer RayBuffer {
+    vec3 RayOrigin;
+    vec3 RayDirection;
+    float threshold;
+} ray;
+
+layout(std430, binding = 2) buffer ResultBuffer {
+    int selectedIndex;
+    float minDistance;
+    uint foundPoint;
+} result;
+
+shared int sharedCandidates[256];
+shared float sharedDistances[256];
+shared uint sharedCount;
+
+void main() {
+    uint pointIndex = gl_GlobalInvocationID.x;
+    uint localIdx = gl_LocalInvocationID.x;
+    
+    if (localIdx == 0) {
+        sharedCount = 0u;
+    }
+    
+    barrier();
+    
+    if (pointIndex >= cloud.points.length()) {
+        return;
+    }
+    
+    vec3 pointPos = cloud.points[pointIndex].position;
+    vec3 OP = pointPos - ray.RayOrigin;
+    float t = dot(OP, ray.RayDirection);
+    
+    if (t >= 0.0) {
+        float distSq = dot(OP, OP) - t * t;
+        
+        if (distSq <= ray.threshold * ray.threshold) {
+            uint candidateIdx = atomicAdd(sharedCount, 1u);
+            
+            if (candidateIdx < 256u) {
+                sharedCandidates[candidateIdx] = int(pointIndex);
+                sharedDistances[candidateIdx] = distSq;
+            }
+        }
+    }
+    
+    barrier();
+    
+    if (localIdx == 0 && sharedCount > 0u) {
+        int bestLocalIdx = sharedCandidates[0];
+        float bestLocalDist = sharedDistances[0];
+        
+        for (uint i = 1u; i < sharedCount; i++) {
+            if (sharedDistances[i] < bestLocalDist) {
+                bestLocalDist = sharedDistances[i];
+                bestLocalIdx = sharedCandidates[i];
+            }
+        }
+        
+        if (bestLocalDist < result.minDistance) {
+            result.selectedIndex = bestLocalIdx;
+            result.foundPoint = 1u;
+            result.minDistance = bestLocalDist;
+        }
+    }
+}

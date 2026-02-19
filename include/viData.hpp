@@ -37,6 +37,7 @@ namespace viData {
             GLuint VAO          = 0;
             GLuint pointVBO     = 0;
             GLuint intensityVBO = 0;
+            GLuint SSBO = 0;
         } buffer;
         
         struct Bounds

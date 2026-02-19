@@ -88,6 +88,16 @@ namespace viData {
         //отвязка параметров чтоб случайно не изменить   
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+
+
+        //Создадим буффер SSBO
+        glGenBuffers(1, &cloud->buffer.SSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cloud->buffer.SSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, 
+                    cloud->_cloud->size() * sizeof(pcl::PointXYZI),
+                    cloud->_cloud->data(),                       
+                    GL_STATIC_DRAW);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cloud->buffer.SSBO);
     }
 
 

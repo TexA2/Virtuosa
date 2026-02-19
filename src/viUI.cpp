@@ -220,6 +220,47 @@ namespace viUI {
 
             if(auto temp_camera = _viewCamera.lock())
                 temp_camera->rayCast(window, xpos, ypos);
+
+                glUseProgram(computeProgram);
+
+
+                int pointCount = -1;
+                if(auto temp_cloudData = _cloudData.lock())
+                    pointCount = temp_cloudData->cloudCache.begin()->second->_cloud->points.size();
+
+                std::cout << "count " << pointCount << std::endl;
+
+                GLuint numGroups = (pointCount + 255) / 256;
+
+            resultData = {-1, 3.40282e+38f, 0};
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ResultData), &resultData);
+
+
+            if(auto temp_cloudData = _cloudData.lock()) {
+    auto& cloud = temp_cloudData->cloudCache.begin()->second;
+    auto& firstPoint = cloud->_cloud->points[0];
+    std::cout << "First point: (" << firstPoint.x << ", " 
+              << firstPoint.y << ", " << firstPoint.z << ")" << std::endl;
+}
+
+                glDispatchCompute(numGroups, 1, 1);
+
+                glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+                ResultData result;
+                glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
+                glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ResultData), &result);
+
+
+// Использование результатов
+if (result.foundPoint) {
+    printf("Найденная точка: индекс %d, расстояние %f\n", 
+           result.selectedIndex, sqrt(result.minDistance));
+    } else {
+        printf("Точки не найдены\n");
+    }
         }
     }
 
