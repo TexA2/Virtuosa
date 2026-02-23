@@ -30,7 +30,7 @@ enum class Mode : uint8_t {
         int selectedIndex;
         float minDistance;
         uint foundPoint;
-        uint debugCounter;
+        float debugCounter;
     };
 
 

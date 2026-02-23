@@ -216,63 +216,98 @@ namespace viUI {
         if (!io.WantCaptureMouse && io.MouseClicked[0])
         {
             double xpos, ypos;
+            glm::vec3 RayOrigin;
+            glm::vec3 RayDirection;
+
             glfwGetCursorPos(window, &xpos, &ypos);
 
             if(auto temp_camera = _viewCamera.lock())
+            {
                 temp_camera->rayCast(window, xpos, ypos);
+                RayOrigin = temp_camera->rayData.RayOrigin;
+                RayDirection = temp_camera->rayData.RayDirection;
+            }
 
-                glUseProgram(computeProgram);
+            std::cout << "RayOrigin " << RayOrigin.x  << " " <<  RayOrigin.y << std::endl;
+            std::cout << "RayDirection " << RayDirection.x << " " << RayDirection.y << std::endl;
+            std::cout  << std::endl;
+            std::cout << std::endl;
 
+            if(auto temp_cloud = _cloudData.lock())
+            {
+                auto cloud = temp_cloud->cloudCache.begin()->second->_cloud;
 
-                int pointCount = -1;
-                if(auto temp_cloudData = _cloudData.lock())
-                {
-                    pointCount = temp_cloudData->cloudCache.begin()->second->_cloud->points.size();
-                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0,  temp_cloudData->cloudCache.begin()->second->buffer.SSBO);
-                }
+                pcl::PointXYZI point;
 
-                if(auto temp_camera = _viewCamera.lock())
-                {
-                    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, temp_camera->rayBuffer);
-                }
+                point.x = RayDirection.x * 60;  // 60 это scale на сколько удалена камера по z на текущей момент для тестов
+                point.y = RayDirection.y * 60;
+                point.z = 1;
+                point.intensity = 1;
 
-                glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, resultBuffer);
+                cloud->push_back(point);
+                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
+                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
+                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
 
-                std::cout << "count " << pointCount << std::endl;
+                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.pointVBO);
+                glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
 
-                GLuint numGroups = (pointCount + 255) / 256;
+                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.intensityVBO);
+                glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->intensity.size() * sizeof(float), temp_cloud->cloudCache.begin()->second->intensity.data(), GL_DYNAMIC_DRAW);
+            }
 
-            resultData = {-1, 3.40282e+38f, 0};
-            glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
-            glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ResultData), &resultData);
-
-
-            if(auto temp_cloudData = _cloudData.lock()) {
-    auto& cloud = temp_cloudData->cloudCache.begin()->second;
-    auto& firstPoint = cloud->_cloud->points[0];
-    std::cout << "First point: (" << firstPoint.x << ", " 
-              << firstPoint.y << ", " << firstPoint.z << ")" << std::endl;
-}
-
-                glDispatchCompute(numGroups, 1, 1);
-
-                glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+            //     glUseProgram(computeProgram);
 
 
-                ResultData result;
-                glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
-                glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ResultData), &result);
+            //     int pointCount = -1;
+            //     if(auto temp_cloudData = _cloudData.lock())
+            //     {
+            //         pointCount = temp_cloudData->cloudCache.begin()->second->_cloud->points.size();
+            //         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0,  temp_cloudData->cloudCache.begin()->second->buffer.SSBO);
+            //     }
+
+            //     if(auto temp_camera = _viewCamera.lock())
+            //     {
+            //         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, temp_camera->rayBuffer);
+            //     }
+
+            //     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, resultBuffer);
+
+            //     std::cout << "count " << pointCount << std::endl;
+
+            //     GLuint numGroups = (pointCount + 255) / 256;
+
+            // resultData = {-1, 3.40282e+38f, 0};
+            // glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
+            // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ResultData), &resultData);
 
 
-// Использование результатов
-if (result.foundPoint) {
-    printf("Найденная точка: индекс %d, расстояние %f\n", 
-           result.selectedIndex, sqrt(result.minDistance));
-           std::cout << "result.debugCounter " << result.debugCounter << std::endl;
-    } else {
-        printf("Точки не найдены\n");
-        std::cout << "result.debugCounter " << result.debugCounter << std::endl;
-    }
+            //             if(auto temp_cloudData = _cloudData.lock()) {
+            //     auto& cloud = temp_cloudData->cloudCache.begin()->second;
+            //     auto& firstPoint = cloud->_cloud->points[0];
+            //     std::cout << "First point: (" << firstPoint.x << ", " 
+            //             << firstPoint.y << ", " << firstPoint.z << ")" << std::endl;
+            // }
+
+            //     glDispatchCompute(numGroups, 1, 1);
+
+            //     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+            //     ResultData result;
+            //     glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
+            //     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ResultData), &result);
+
+
+            // // Использование результатов
+            // if (result.foundPoint) {
+            //     printf("Найденная точка: индекс %d, расстояние %f\n", 
+            //         result.selectedIndex, sqrt(result.minDistance));
+            //         std::cout << "result.debugCounter " << result.debugCounter << std::endl;
+            //     } else {
+            //         printf("Точки не найдены\n");
+            //         std::cout << "result.debugCounter " << result.debugCounter << std::endl;
+            //     }
         }
     }
 

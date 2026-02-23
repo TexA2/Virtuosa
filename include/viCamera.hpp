@@ -89,12 +89,13 @@ namespace viCamera {
 
 
      uint rayBuffer;
+     RayData rayData;
      
         private:
 
             CameraSettings _cameraSettings;
             ProjectType _projectionType;
-            RayData rayData;
+            //RayData rayData;
 
             glm::mat4 model;
             glm::mat4 projection;

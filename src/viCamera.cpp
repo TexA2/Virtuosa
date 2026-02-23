@@ -260,7 +260,7 @@ using namespace viCamera;
         glm::vec3 rayOrigin = _cameraSettings.cameraSpace.cameraPos;
 
         rayData.RayOrigin = _cameraSettings.cameraSpace.cameraPos;
-        rayData.RayDirection = rayWorld;;
+        rayData.RayDirection = rayWorld;
         rayData.threshold = 1000.f;
 
 
