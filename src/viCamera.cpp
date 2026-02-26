@@ -245,6 +245,8 @@ using namespace viCamera;
         float ndcX  = (2.f * adjustedX) /  _width - 1.0f;
         float ndcY  = 1.f - (2.f * ypos) / _height;
 
+        ndcX = ndcX - 0.17f;
+
         // NDC -> view
         float focalLength = 1.f / tanf(glm::radians(75.f / 2.f)); //75 is fov
         float ar = _height / _width;
