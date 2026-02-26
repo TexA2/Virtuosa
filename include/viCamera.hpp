@@ -90,10 +90,11 @@ namespace viCamera {
 
      uint rayBuffer;
      RayData rayData;
+     CameraSettings _cameraSettings;
      
         private:
 
-            CameraSettings _cameraSettings;
+            //CameraSettings _cameraSettings;
             ProjectType _projectionType;
             //RayData rayData;
 

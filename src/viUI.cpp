@@ -218,18 +218,20 @@ namespace viUI {
             double xpos, ypos;
             glm::vec3 RayOrigin;
             glm::vec3 RayDirection;
+            float scale = 1;
 
             glfwGetCursorPos(window, &xpos, &ypos);
 
             if(auto temp_camera = _viewCamera.lock())
             {
                 temp_camera->rayCast(window, xpos, ypos);
-                RayOrigin = temp_camera->rayData.RayOrigin;
-                RayDirection = temp_camera->rayData.RayDirection;
+                RayOrigin = temp_camera->rayData.RayOrigin;      // (0, 0, 60)
+                RayDirection = temp_camera->rayData.RayDirection; // единичный вектор
             }
 
             std::cout << "RayOrigin " << RayOrigin.x  << " " <<  RayOrigin.y << std::endl;
             std::cout << "RayDirection " << RayDirection.x << " " << RayDirection.y << std::endl;
+             std::cout << "Scale " << scale << std::endl;
             std::cout  << std::endl;
             std::cout << std::endl;
 
@@ -238,11 +240,17 @@ namespace viUI {
                 auto cloud = temp_cloud->cloudCache.begin()->second->_cloud;
 
                 pcl::PointXYZI point;
+                
+                float t = -RayOrigin.z / RayDirection.z;
+                float brushDepth = RayOrigin.z - 60.f;  
+                
+                //point.x = RayOrigin.x + RayDirection.x * t;
+                //point.y = RayOrigin.y + RayDirection.y * t;
+                //point.z = brushDepth;  // лежит на плоскости
 
-                point.x = RayDirection.x * 60;  // 60 это scale на сколько удалена камера по z на текущей момент для тестов
-                point.y = RayDirection.y * 60;
-                point.z = 1;
-                point.intensity = 1;
+                point.x = RayOrigin.x;
+                point.y = RayOrigin.y; 
+                point.z = RayOrigin.z;  // лежит на плоскости
 
                 cloud->push_back(point);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);

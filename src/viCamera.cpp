@@ -239,29 +239,43 @@ using namespace viCamera;
             adjustedX = xpos - (_width * widget->getObjectPanelWidth());
         }
 
+        glm::mat4 projInv = glm::inverse(projection);
+
+        // ViewPort -> NDC
         float ndcX  = (2.f * adjustedX) /  _width - 1.0f;
         float ndcY  = 1.f - (2.f * ypos) / _height;
 
-        std::cout << "Screen: (" << xpos << ", " << ypos << ")" << std::endl;
-        std::cout << "NDC: (" << ndcX << ", " << ndcY << ")" << std::endl;
-        std::cout << "Render area size: " << _width << " x " << _height << std::endl;
+        // NDC -> view
+        float focalLength = 1.f / tanf(glm::radians(75.f / 2.f)); //75 is fov
+        float ar = _height / _width;
+        glm::vec3 rayView(ndcX / focalLength, ndcY / focalLength, -1.f);
 
-        // NDC → Clip Space
-        glm::vec4 rayClip(ndcX, ndcY, -1.0f, 1.0f);
 
-        // Clip Space → Eye Space (View Space)
-        glm::vec4 rayEye = glm::inverse(projection) * rayClip;
-        rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+        // NDC -> second version
+        glm::vec4 rayNdc4D (ndcX, ndcY, 1.f, 1.f);
+        glm::vec4 rayView4d (projInv * rayNdc4D);
 
-        // Eye Space → World Space
-        glm::vec3 rayWorld = glm::vec3(glm::inverse(lookAt) * rayEye);
-        rayWorld = glm::normalize(rayWorld);
+
+        // intersect view vector with object Z plane (in view)
+        glm::vec4 viewSpaceIntersect (rayView * 60.0f, 1.f);  // 60 - cameraSpace.z
+
+        // View to World space
+        glm::mat4 invLookAt = glm::inverse(lookAt);
+        glm::vec4 pointWorld (invLookAt * viewSpaceIntersect);
 
         glm::vec3 rayOrigin = _cameraSettings.cameraSpace.cameraPos;
 
-        rayData.RayOrigin = _cameraSettings.cameraSpace.cameraPos;
-        rayData.RayDirection = rayWorld;
+        //rayData.RayOrigin = _cameraSettings.cameraSpace.cameraPos;
+        rayData.RayOrigin = glm::vec3(pointWorld);
+        rayData.RayDirection = rayView;
         rayData.threshold = 1000.f;
+
+
+
+        std::cout << "Screen: (" << xpos << ", " << ypos << ")"  << " ar " <<  ar  << std::endl;
+        std::cout << "NDC: (" << ndcX << ", " << ndcY << ")" << std::endl;
+        std::cout << "rayView: " << rayView.x << " " << rayView.y << std::endl;
+        std::cout << "pointWorld: " << pointWorld.x << " " << pointWorld.y << " " << pointWorld.z << std::endl;
 
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
