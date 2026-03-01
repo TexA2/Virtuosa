@@ -229,59 +229,69 @@ using namespace viCamera;
     }
 
     void Camera::rayCast(GLFWwindow* window, double xpos, double ypos) {
-
         void* ptr = glfwGetWindowUserPointer(window);
-        double adjustedX = 0;
+        if (!ptr) return;
 
-        if (ptr)
-        {
-            viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
-            adjustedX = xpos - (_width * widget->getObjectPanelWidth());
-        }
+        viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
 
-        glm::mat4 projInv = glm::inverse(projection);
+        // Получаем размеры окна
+        int windowWidth, windowHeight;
+        glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+        GLint viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);
+
+        // Корректируем координаты относительно viewport
+        double adjustedX = xpos - viewport[0];
+        double adjustedY = ypos - viewport[1];
+
+        // ДИАГНОСТИКА
+        std::cout << "=== RAYCAST DIAGNOSTICS ===" << std::endl;
+        std::cout << "Window size: " << windowWidth << "x" << windowHeight << std::endl;
+        std::cout << "Viewport: x=" << viewport[0] << ", y=" << viewport[1] 
+                << ", w=" << viewport[2] << ", h=" << viewport[3] << std::endl;
+        std::cout << "Mouse: " << xpos << "," << ypos << std::endl;
+        std::cout << "Adjusted: " << adjustedX << "," << adjustedY << std::endl;
 
         // ViewPort -> NDC
-        float ndcX  = (2.f * adjustedX) /  _width - 1.0f;
-        float ndcY  = 1.f - (2.f * ypos) / _height;
+        float ndcX = (2.f * adjustedX) / viewport[2] - 1.0f;
+        float ndcY = 1.f - (2.f * adjustedY) / viewport[3];
 
-        ndcX = ndcX - 0.17f;
+        std::cout << "NDC: " << ndcX << "," << ndcY << std::endl;
+        std::cout << "===========================" << std::endl;
 
-        // NDC -> view
-        float focalLength = 1.f / tanf(glm::radians(75.f / 2.f)); //75 is fov
-        float ar = _height / _width;
-        glm::vec3 rayView(ndcX / focalLength, ndcY / focalLength, -1.f);
+        // ПРАВИЛЬНЫЙ РАСЧЕТ ЛУЧА через обратную проекцию
+        glm::mat4 projInv = glm::inverse(projection);
+        glm::mat4 viewInv = glm::inverse(lookAt);
+        
+        // Точки на near и far plane в NDC
+        glm::vec4 rayStartNDC(ndcX, ndcY, -1.0f, 1.0f);
+        glm::vec4 rayEndNDC(ndcX, ndcY, 1.0f, 1.0f);
+        
+        // Преобразуем в view space
+        glm::vec4 rayStartView = projInv * rayStartNDC;
+        glm::vec4 rayEndView = projInv * rayEndNDC;
+        
+        // Перспективное деление
+        rayStartView /= rayStartView.w;
+        rayEndView /= rayEndView.w;
+        
+        // Направление луча в view space
+        glm::vec3 rayDirView = glm::normalize(glm::vec3(rayEndView - rayStartView));
+        
+        // Преобразуем в world space
+        glm::vec3 rayDirWorld = glm::normalize(glm::vec3(viewInv * glm::vec4(rayDirView, 0.0f)));
+        glm::vec3 rayOriginWorld = glm::vec3(viewInv * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        
+        // Точка пересечения с плоскостью на расстоянии (для визуализации)
+        float distance = 60.0f;
+        glm::vec3 pointWorld = rayOriginWorld + rayDirWorld * distance;
 
-
-        // NDC -> second version
-        glm::vec4 rayNdc4D (ndcX, ndcY, 1.f, 1.f);
-        glm::vec4 rayView4d (projInv * rayNdc4D);
-
-
-        // intersect view vector with object Z plane (in view)
-        glm::vec4 viewSpaceIntersect (rayView * 60.0f, 1.f);  // 60 - cameraSpace.z
-
-        // View to World space
-        glm::mat4 invLookAt = glm::inverse(lookAt);
-        glm::vec4 pointWorld (invLookAt * viewSpaceIntersect);
-
-        glm::vec3 rayOrigin = _cameraSettings.cameraSpace.cameraPos;
-
-        //rayData.RayOrigin = _cameraSettings.cameraSpace.cameraPos;
-        rayData.RayOrigin = glm::vec3(pointWorld);
-        rayData.RayDirection = rayView;
+        // Сохраняем данные
+        rayData.RayOrigin = pointWorld;
+        rayData.RayDirection = rayDirWorld;
         rayData.threshold = 1000.f;
-
-
-
-        std::cout << "Screen: (" << xpos << ", " << ypos << ")"  << " ar " <<  ar  << std::endl;
-        std::cout << "NDC: (" << ndcX << ", " << ndcY << ")" << std::endl;
-        std::cout << "rayView: " << rayView.x << " " << rayView.y << std::endl;
-        std::cout << "pointWorld: " << pointWorld.x << " " << pointWorld.y << " " << pointWorld.z << std::endl;
-
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(RayData), &rayData);
-
-        // по сути можно еще сбросить результат data
     }
