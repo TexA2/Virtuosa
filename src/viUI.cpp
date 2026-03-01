@@ -139,6 +139,7 @@ namespace viUI {
                     ModeButton("View", Mode::viewMode, curMode, buttonSize);
                     ModeButton("Select", Mode::selectMode, curMode, buttonSize);
                     ModeButton("Transform", Mode::transformMode, curMode, buttonSize);
+                    ModeButton("Draw", Mode::drawMode, curMode, buttonSize);
                 ImGui::EndGroup();
             }
             ImGui::EndChild();
@@ -187,7 +188,6 @@ namespace viUI {
         if (ImGui::Button(label, size)) curMode = buttonMode;
         
         if (isActive) ImGui::PopStyleColor(2);
-
     }
 
     void viManageUI::viewMode(GLFWwindow* window) {
@@ -212,60 +212,23 @@ namespace viUI {
     }
 
     void viManageUI::selectMode(GLFWwindow* window) {
-        ImGuiIO& io = ImGui::GetIO();
-        if (!io.WantCaptureMouse && io.MouseClicked[0])
-        {
-            double xpos, ypos;
-            glm::vec3 RayOrigin;
-            glm::vec3 RayDirection;
-            float scale = 1;
+        // ImGuiIO& io = ImGui::GetIO();
+        // if (!io.WantCaptureMouse && io.MouseClicked[0])
+        // {
+        //     double xpos, ypos;
+        //     glm::vec3 RayOrigin;
+        //     glm::vec3 RayDirection;
 
-            glfwGetCursorPos(window, &xpos, &ypos);
+        //     glfwGetCursorPos(window, &xpos, &ypos);
 
-            if(auto temp_camera = _viewCamera.lock())
-            {
-                temp_camera->rayCast(window, xpos, ypos);
-                RayOrigin = temp_camera->rayData.RayOrigin;      // (0, 0, 60)
-                RayDirection = temp_camera->rayData.RayDirection; // единичный вектор
-            }
-
-            std::cout << "RayOrigin " << RayOrigin.x  << " " <<  RayOrigin.y << std::endl;
-            std::cout << "RayDirection " << RayDirection.x << " " << RayDirection.y << std::endl;
-             std::cout << "Scale " << scale << std::endl;
-            std::cout  << std::endl;
-            std::cout << std::endl;
-
-            if(auto temp_cloud = _cloudData.lock())
-            {
-                auto cloud = temp_cloud->cloudCache.begin()->second->_cloud;
-
-                pcl::PointXYZI point;
-                
-                float t = -RayOrigin.z / RayDirection.z;
-                float brushDepth = RayOrigin.z - 60.f;  
-                
-                //point.x = RayOrigin.x + RayDirection.x * t;
-                //point.y = RayOrigin.y + RayDirection.y * t;
-                //point.z = brushDepth;  // лежит на плоскости
-
-                point.x = RayOrigin.x;
-                point.y = RayOrigin.y; 
-                point.z = RayOrigin.z;  // лежит на плоскости
-
-                cloud->push_back(point);
-                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
-                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
-                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
-
-                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.pointVBO);
-                glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
-
-                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.intensityVBO);
-                glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->intensity.size() * sizeof(float), temp_cloud->cloudCache.begin()->second->intensity.data(), GL_DYNAMIC_DRAW);
-            }
+        //     if(auto temp_camera = _viewCamera.lock())
+        //     {
+        //         temp_camera->rayCast(window, xpos, ypos);
+        //         RayOrigin = temp_camera->rayData.RayOrigin;      // (0, 0, 60)
+        //         RayDirection = temp_camera->rayData.RayDirection; // единичный вектор
+        //     }
 
             //     glUseProgram(computeProgram);
-
 
             //     int pointCount = -1;
             //     if(auto temp_cloudData = _cloudData.lock())
@@ -316,6 +279,62 @@ namespace viUI {
             //         printf("Точки не найдены\n");
             //         std::cout << "result.debugCounter " << result.debugCounter << std::endl;
             //     }
+        //}
+    }
+
+    void viManageUI::drawMode(GLFWwindow* window) {
+        if (auto temp_data = _cloudData.lock()) 
+        {
+            if (temp_data->cloudCache.empty())
+            {
+            std::cout << "No data" << std::endl;
+            return;
+            }
+        }
+
+        ImGuiIO& io = ImGui::GetIO();
+        if (!io.WantCaptureMouse && io.MouseClicked[0])
+        {
+            double xpos, ypos;
+            glm::vec3 RayOrigin;
+            glm::vec3 RayDirection;
+            float scale = 1;
+
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+            if(auto temp_camera = _viewCamera.lock())
+            {
+                temp_camera->rayCast(window, xpos, ypos);
+                RayOrigin = temp_camera->rayData.RayOrigin; 
+                RayDirection = temp_camera->rayData.RayDirection;
+            }
+
+            std::cout << "RayOrigin " << RayOrigin.x  << " " <<  RayOrigin.y << std::endl;
+            std::cout << "RayDirection " << RayDirection.x << " " << RayDirection.y << std::endl;
+            std::cout  << std::endl;
+            std::cout << std::endl;
+
+            if(auto temp_cloud = _cloudData.lock())
+            {
+                auto cloud = temp_cloud->cloudCache.begin()->second->_cloud;
+
+                pcl::PointXYZI point;
+
+                point.x = RayOrigin.x;
+                point.y = RayOrigin.y; 
+                point.z = RayOrigin.z;
+
+                cloud->push_back(point);
+                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
+                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
+                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
+
+                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.pointVBO);
+                glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+
+                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.intensityVBO);
+                glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->intensity.size() * sizeof(float), temp_cloud->cloudCache.begin()->second->intensity.data(), GL_DYNAMIC_DRAW);
+            }
         }
     }
 
@@ -352,12 +371,20 @@ namespace viUI {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Режим работы и сигналы от мышки
-        if (curMode == Mode::viewMode) viewMode(window);
-
-        if (curMode == Mode::selectMode) selectMode(window);
-
-        if (curMode == Mode::transformMode)
-        { std::cout << "Cur mode transformMode" << std::endl; }
+        switch (curMode)
+        {
+        case Mode::viewMode:
+            viewMode(window);
+            break;
+        case Mode::selectMode:
+            selectMode(window);
+            break;
+        case Mode::drawMode:
+            drawMode(window);
+            break;
+        case Mode::transformMode:
+            break;
+        }
     }
 
 }

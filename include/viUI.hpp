@@ -23,7 +23,8 @@ namespace viWidget
 enum class Mode : uint8_t { 
     viewMode,
     selectMode,
-    transformMode
+    transformMode,
+    drawMode
 };
 
     struct ResultData {
@@ -110,6 +111,7 @@ namespace viUI {
             void ModeButton(const char* label, Mode buttonMode, Mode& curMode, const ImVec2& size);
             void viewMode(GLFWwindow* window);
             void selectMode(GLFWwindow* window);
+            void drawMode(GLFWwindow* window);
 
 
             bool show_BackroundColor = false;

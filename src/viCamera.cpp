@@ -246,12 +246,12 @@ using namespace viCamera;
         double adjustedY = ypos - viewport[1];
 
         // ДИАГНОСТИКА
-        std::cout << "=== RAYCAST DIAGNOSTICS ===" << std::endl;
-        std::cout << "Window size: " << windowWidth << "x" << windowHeight << std::endl;
-        std::cout << "Viewport: x=" << viewport[0] << ", y=" << viewport[1] 
-                << ", w=" << viewport[2] << ", h=" << viewport[3] << std::endl;
-        std::cout << "Mouse: " << xpos << "," << ypos << std::endl;
-        std::cout << "Adjusted: " << adjustedX << "," << adjustedY << std::endl;
+        // std::cout << "=== RAYCAST DIAGNOSTICS ===" << std::endl;
+        // std::cout << "Window size: " << windowWidth << "x" << windowHeight << std::endl;
+        // std::cout << "Viewport: x=" << viewport[0] << ", y=" << viewport[1] 
+        //         << ", w=" << viewport[2] << ", h=" << viewport[3] << std::endl;
+        // std::cout << "Mouse: " << xpos << "," << ypos << std::endl;
+        // std::cout << "Adjusted: " << adjustedX << "," << adjustedY << std::endl;
 
         // ViewPort -> NDC
         float ndcX = (2.f * adjustedX) / viewport[2] - 1.0f;
@@ -284,7 +284,7 @@ using namespace viCamera;
         glm::vec3 rayOriginWorld = glm::vec3(viewInv * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
         
         // Точка пересечения с плоскостью на расстоянии (для визуализации)
-        float distance = 60.0f;
+        float distance = _cameraSettings.cameraSpace.cameraPos.z;
         glm::vec3 pointWorld = rayOriginWorld + rayDirWorld * distance;
 
         // Сохраняем данные
@@ -292,6 +292,6 @@ using namespace viCamera;
         rayData.RayDirection = rayDirWorld;
         rayData.threshold = 1000.f;
 
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(RayData), &rayData);
+        // glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
+        // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(RayData), &rayData);
     }
