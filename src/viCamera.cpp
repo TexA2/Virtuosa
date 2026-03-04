@@ -295,3 +295,7 @@ using namespace viCamera;
         // glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
         // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(RayData), &rayData);
     }
+
+    void Camera::setCameraPos(glm::vec3 newPos) {
+        _cameraSettings.cameraSpace.cameraPos = newPos;
+    }

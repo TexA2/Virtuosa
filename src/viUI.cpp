@@ -27,9 +27,8 @@ namespace viUI {
     void viManageUI::ShowExampleMenuFile() {
         if (ImGui::MenuItem("New")) 
         { 
-            //TODO: поченить после изменений
-            //viCloud._cloud->clear();
-            //viCloud.cloudOpen = false;
+            if (auto temp_data = _cloudData.lock())
+                temp_data->newCloud();
         }
 
 
@@ -45,7 +44,18 @@ namespace viUI {
             if (result == NFD_OKAY)
             {
                 if(auto temp_cloudData = _cloudData.lock())
+                {
                     temp_cloudData->pointCloudOpen(outPath);
+                    glm::vec3 centerPoint = (temp_cloudData->cloudCache[outPath]->bounds.max +
+                                             temp_cloudData->cloudCache[outPath]->bounds.min );
+                    centerPoint.x /= 2;
+                    centerPoint.y /= 2;
+
+                    std::cout << "centerPoint " << centerPoint.x  << " " << centerPoint.y << std::endl;
+
+                    auto temp_camera = _viewCamera.lock();
+                    temp_camera->setCameraPos(glm::vec3(centerPoint.x, centerPoint.y, 60));
+                }
             }
             else if (result == NFD_CANCEL)
             {
@@ -58,7 +68,34 @@ namespace viUI {
 
             NFD_Quit();
         }
-        if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+        if (ImGui::MenuItem("Save", "Ctrl+S")) {
+            NFD_Init();
+
+            nfdu8char_t *outPath;
+            nfdu8filteritem_t filters[1] = { { "point cloud", "pcd" }};
+            nfdsavedialognargs_t args = {0};
+            args.filterList = filters;
+            args.filterCount = 1;
+            nfdresult_t result = NFD_SaveDialogN_With(&outPath, &args);
+            if (result == NFD_OKAY)
+            {
+                if(auto temp_cloudData = _cloudData.lock())
+                {
+                    temp_cloudData->savePointCloud(selectedCloudId, std::string(outPath));
+                    std::cout << "cloud save to: " << std::string(outPath) << std::endl;
+                }
+            }
+            else if (result == NFD_CANCEL)
+            {
+                puts("User pressed cancel.");
+            }
+            else 
+            {
+                printf("Error: %s\n", NFD_GetError());
+            }
+
+            NFD_Quit();
+        }
         if (ImGui::MenuItem("Save As..")) {}
         if (ImGui::MenuItem("Background Color")) {show_BackroundColor = true;}
         ImGui::Separator();
@@ -323,6 +360,7 @@ namespace viUI {
                 point.x = RayOrigin.x;
                 point.y = RayOrigin.y; 
                 point.z = RayOrigin.z;
+                point.intensity = 1.f;
 
                 cloud->push_back(point);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);

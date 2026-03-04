@@ -58,6 +58,8 @@ namespace viData {
             void pointCloudOpen(std::string path);
             void cloudBuffer(std::shared_ptr<CloudData> cloud);
             void calculateCloudBounds(std::shared_ptr<CloudData> cloud);
+            void newCloud();
+            void savePointCloud(std::string nameCloud, std::string path);
 
             std::unordered_map<std::string, std::shared_ptr<CloudData>> cloudCache;
 

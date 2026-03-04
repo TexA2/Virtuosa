@@ -76,6 +76,7 @@ namespace viCamera {
             void updateProjection();
             void toggleProjection();
             void rayCast(GLFWwindow* window, double xpos, double ypos);
+            void setCameraPos(glm::vec3 newPos);
 
             glm::mat4 getMvpMatrix();
 

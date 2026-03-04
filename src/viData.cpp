@@ -11,7 +11,7 @@ namespace viData {
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
         pcl::io::loadPCDFile<pcl::PointXYZI>(path, *cloud);
-        std::string name = getFileName(path);
+        std::string name = path;
 
         if (cloudCache.find(name) == cloudCache.end())
         {
@@ -118,5 +118,20 @@ namespace viData {
         r = static_cast<uint8_t>(rf * 255);
         g = static_cast<uint8_t>(gf * 255);
         b = static_cast<uint8_t>(bf * 255);
+    }
+
+
+    void viManageData::newCloud() {
+        std::string name ("new cloud");
+        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
+
+        std::shared_ptr<CloudData> temp_cloud = std::make_shared<CloudData> ();
+        temp_cloud->_cloud = cloud;
+        cloudBuffer(temp_cloud);
+        cloudCache[name] = temp_cloud;
+    }
+
+    void viManageData::savePointCloud(std::string nameCloud, std::string path) {
+        pcl::io::savePCDFileASCII (path, *(cloudCache[nameCloud]->_cloud));
     }
 }
