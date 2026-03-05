@@ -100,7 +100,7 @@ namespace viUI {
         if (ImGui::MenuItem("Background Color")) {show_BackroundColor = true;}
         ImGui::Separator();
         if (ImGui::MenuItem("Quit", "Alt+F4")) {
-            buttonQuit = true;
+            buttonQuit_ = true;
         }
     }
 
@@ -222,8 +222,13 @@ namespace viUI {
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.6f, 0.3f, 1.0f));
         }
         
-        if (ImGui::Button(label, size)) curMode = buttonMode;
-        
+        if (ImGui::Button(label, size))
+        { 
+            curMode = buttonMode;
+            if (label == "Transform" && !showTransform_ ) showTransform_ = true;
+        }
+
+
         if (isActive) ImGui::PopStyleColor(2);
     }
 
@@ -353,7 +358,7 @@ namespace viUI {
 
             if(auto temp_cloud = _cloudData.lock())
             {
-                auto cloud = temp_cloud->cloudCache.begin()->second->_cloud;
+                auto cloud = temp_cloud->cloudCache[selectedCloudId]->_cloud;
 
                 pcl::PointXYZI point;
 
@@ -366,13 +371,86 @@ namespace viUI {
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
-
-                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.pointVBO);
+            
+                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.pointVBO);
                 glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
-
-                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->buffer.intensityVBO);
-                glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache.begin()->second->intensity.size() * sizeof(float), temp_cloud->cloudCache.begin()->second->intensity.data(), GL_DYNAMIC_DRAW);
+                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.intensityVBO);
+                glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->intensity.size() * sizeof(float), temp_cloud->cloudCache[selectedCloudId]->intensity.data(), GL_DYNAMIC_DRAW);
             }
+        }
+    }
+
+    void viManageUI::transformMode(GLFWwindow* window) {
+
+        if (showTransform_) {
+        // Вся трансформация происходит относительно центра мира 0,0,0 , а не центра облака точек
+        static float moveX = 0.f, moveY = 0.f, moveZ = 0.f;
+
+        ImGui::Begin("Transform", &showTransform_);
+            ImGui::Text("Move");
+            ImGui::PushItemWidth(100.0f);
+            ImGui::InputFloat("moveX", &moveX);
+            ImGui::SameLine();
+            ImGui::InputFloat("moveY", &moveY);
+            ImGui::SameLine();
+            ImGui::InputFloat("moveZ", &moveZ);
+            if (ImGui::Button("move"))
+            {
+                glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), 
+                                                            glm::vec3(moveX, moveY, moveZ));
+                if (auto temp_data = _cloudData.lock())
+                {
+                    auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
+                    for (auto &point : *cloud)
+                    {
+                        glm::vec4 pointV (point.x, point.y, point.z, 1.f);
+                        pointV = translationMatrix * pointV;
+                        point.x = pointV.x;
+                        point.y = pointV.y;
+                        point.z = pointV.z;
+                    }
+
+                    glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);
+                    glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+                }
+            }
+            ImGui::PopItemWidth();
+
+
+            static float scaleX = 1.f, scaleY = 1.f, scaleZ = 1.f;
+
+            ImGui::Text("Scaling");
+            ImGui::PushItemWidth(100.0f);
+            ImGui::InputFloat("scaleX", &scaleX);
+            ImGui::SameLine();
+            ImGui::InputFloat("scaleY", &scaleY);
+            ImGui::SameLine();
+            ImGui::InputFloat("scaleZ", &scaleZ);
+            if (ImGui::Button("scale"))
+            {
+                glm::mat4 scalingMatrix = glm::scale(glm::mat4(1.0f), 
+                                            glm::vec3(scaleX, scaleY, scaleZ));
+
+                if (auto temp_data = _cloudData.lock())
+                {
+                    auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
+                    for (auto &point : *cloud)
+                    {
+                        glm::vec4 pointV (point.x, point.y, point.z, 1.f);
+                        pointV = scalingMatrix * pointV;
+                        point.x = pointV.x;
+                        point.y = pointV.y;
+                        point.z = pointV.z;
+                    }
+
+                    glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);
+                    glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+                }
+            }
+            ImGui::PopItemWidth();
+
+
+        ImGui::End();
         }
     }
 
@@ -401,12 +479,9 @@ namespace viUI {
             ImGui::End();
         }
 
-        if(buttonQuit) {
+        if(buttonQuit_) {
             glfwSetWindowShouldClose(window, true);
         }
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Режим работы и сигналы от мышки
         switch (curMode)
@@ -421,8 +496,12 @@ namespace viUI {
             drawMode(window);
             break;
         case Mode::transformMode:
+            transformMode(window);
             break;
         }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
 }

@@ -112,11 +112,7 @@ namespace viUI {
             void viewMode(GLFWwindow* window);
             void selectMode(GLFWwindow* window);
             void drawMode(GLFWwindow* window);
-
-
-            bool show_BackroundColor = false;
-            bool show_pointColor = false;
-            bool buttonQuit = false;
+            void transformMode(GLFWwindow* window);
 
             glm::vec4 clear_color;
         private:
@@ -134,6 +130,11 @@ namespace viUI {
             GLuint resultBuffer;
             GLuint computeShader;
             GLuint computeProgram;
+
+            bool show_BackroundColor = false;
+            bool showTransform_ = false;
+            bool show_pointColor = false;
+            bool buttonQuit_ = false;
     };
 }
 
