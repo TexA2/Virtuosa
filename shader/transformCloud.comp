@@ -25,5 +25,5 @@ void main() {
 
     vec4 transformedPos = transform * vec4(cloud.points[index].position, 1.f); // 1.0
 
-    cloud.points[index]  = transformedPos.xyz;
+    cloud.points[index].position   = transformedPos.xyz;
 }
