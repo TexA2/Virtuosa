@@ -1,7 +1,7 @@
 #version 450 core
 
 
-layout(local_size_x_id = 256) in;
+layout(local_size_x = 256) in;
 
 struct PointData {
     vec3 position;
@@ -23,5 +23,7 @@ void main() {
 
     if (index >= cloud.points.length()) return;
 
-    cloud.points[index] = transform * vec4(cloud.points[index].position, 1.f); // 1.0
+    vec4 transformedPos = transform * vec4(cloud.points[index].position, 1.f); // 1.0
+
+    cloud.points[index]  = transformedPos.xyz;
 }

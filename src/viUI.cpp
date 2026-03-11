@@ -407,13 +407,8 @@ namespace viUI {
 
                     viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
                     widget->getShader()->computeTransform(translationMatrix, cloud->size());
-                //     for (auto &point : *cloud)
-                //     {
-                //         glm::vec4 pointV (point.x, point.y, point.z, 1.f);
-                //         pointV = translationMatrix * pointV;
-                //         point.x = pointV.x;
-                //         point.y = pointV.y;
-                //         point.z = pointV.z;
+
+                    temp_data->readComputeData(cloud->size(), selectedCloudId);
                     }
 
                     glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);

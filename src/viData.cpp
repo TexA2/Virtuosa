@@ -134,4 +134,16 @@ namespace viData {
     void viManageData::savePointCloud(std::string nameCloud, std::string path) {
         pcl::io::savePCDFileASCII (path, *(cloudCache[nameCloud]->_cloud));
     }
+
+
+    void viManageData::readComputeData(int size, std::string select) {
+        pcl::PointCloud<pcl::PointXYZI>::Ptr result (new pcl::PointCloud<pcl::PointXYZI>);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, cloud->buffer.SSBO);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 
+                       size * sizeof(pcl::PointXYZI), 
+                       result.data());
+
+        cloudCache[select]->_cloud = result;
+    }
 }

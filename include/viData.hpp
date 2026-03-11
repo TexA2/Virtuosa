@@ -61,6 +61,8 @@ namespace viData {
             void newCloud();
             void savePointCloud(std::string nameCloud, std::string path);
 
+            void readComputeData(int size, std::string select);
+
             std::unordered_map<std::string, std::shared_ptr<CloudData>> cloudCache;
 
         private:
