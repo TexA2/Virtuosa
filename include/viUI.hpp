@@ -52,53 +52,6 @@ namespace viUI {
                                                     1.00f);
 
                             curMode = Mode::viewMode;
-
-// Пока сюда засуну пикер шейдер , потом буду шейдер переписывать
-        // Создание буфера для результатов
-        resultData = {-1, 3.40282e+38f, 0};
-        glGenBuffers(1, &resultBuffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, resultBuffer);
-
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ResultData), &resultData, GL_DYNAMIC_READ);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, resultBuffer);
-        //конец
-
-        computeShader = glCreateShader(GL_COMPUTE_SHADER);
-
-        std::ifstream fileStream("../shader/pointPicker.comp", std::ios::in);
-        std::stringstream ShaderStream;
-        ShaderStream << fileStream.rdbuf();
-        fileStream.close();
-        std::string Code = ShaderStream.str();
-     
-        const char* shaderSource = Code.c_str();
-        glShaderSource(computeShader, 1, &shaderSource, NULL);
-        glCompileShader(computeShader);
-
-
-        GLint success;
-        glGetShaderiv(computeShader, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            char infoLog[512];
-            glGetShaderInfoLog(computeShader, 512, NULL, infoLog);
-            printf("Ошибка компиляции compute шейдера: %s\n", infoLog);
-        }
-
-        // Создание программы
-        computeProgram = glCreateProgram();
-        glAttachShader(computeProgram, computeShader);
-        glLinkProgram(computeProgram);
-
-        // Проверка на ошибки линковки
-        glGetProgramiv(computeProgram, GL_LINK_STATUS, &success);
-        if (!success) {
-            char infoLog[512];
-            glGetProgramInfoLog(computeProgram, 512, NULL, infoLog);
-            printf("Ошибка линковки программы: %s\n", infoLog);
-        }
-
-        glDeleteShader(computeShader);
-
                         }
 
             ~viManageUI() = default;
@@ -128,8 +81,8 @@ namespace viUI {
             // для теста
             ResultData resultData;
             GLuint resultBuffer;
-            GLuint computeShader;
-            GLuint computeProgram;
+           // GLuint computeShader;
+           // GLuint computeProgram;
 
             bool show_BackroundColor = false;
             bool showTransform_ = false;

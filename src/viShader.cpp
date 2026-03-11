@@ -148,3 +148,54 @@ using namespace viShader;
                             data3,
                             data4);
     }
+
+    void Shader::computeTransform(const glm::mat4& transform, int pointCount) {
+        GLuint computeShader;
+        GLuint computeProgram;
+
+        computeShader = glCreateShader(GL_COMPUTE_SHADER);
+
+        std::ifstream fileStream("../shader/transformCloud.comp", std::ios::in);
+        std::stringstream ShaderStream;
+        ShaderStream << fileStream.rdbuf();
+        fileStream.close();
+        std::string Code = ShaderStream.str();
+
+        const char* shaderSource = Code.c_str();
+        glShaderSource(computeShader, 1, &shaderSource, NULL);
+        glCompileShader(computeShader);
+
+        GLint success;
+        glGetShaderiv(computeShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            char infoLog[512];
+            glGetShaderInfoLog(computeShader, 512, NULL, infoLog);
+            printf("Ошибка компиляции compute шейдера: %s\n", infoLog);
+        }
+
+        // Создание программы
+        computeProgram = glCreateProgram();
+        glAttachShader(computeProgram, computeShader);
+        glLinkProgram(computeProgram);
+
+
+        // Проверка на ошибки линковки
+        glGetProgramiv(computeProgram, GL_LINK_STATUS, &success);
+        if (!success) {
+            char infoLog[512];
+            glGetProgramInfoLog(computeProgram, 512, NULL, infoLog);
+            printf("Ошибка линковки программы: %s\n", infoLog);
+        }
+
+        glDeleteShader(computeShader);
+
+        const GLuint LOCAL_SIZE = 256;
+        GLuint numGroups = (pointCount + LOCAL_SIZE - 1) / LOCAL_SIZE;
+
+        glUseProgram(computeProgram);
+
+        //uniform transform !!! 
+        glDispatchCompute(numGroups,1,1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    }

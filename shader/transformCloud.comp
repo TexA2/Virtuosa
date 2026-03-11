@@ -1,0 +1,27 @@
+#version 450 core
+
+
+layout(local_size_x_id = 256) in;
+
+struct PointData {
+    vec3 position;
+    float intensity;
+};
+
+
+layout(std430, binding = 0) buffer CloudData {
+    PointData points[];
+} cloud;
+
+
+uniform mat4 transform;
+
+
+void main() {
+
+    uint index = gl_GlobalInvocationID.x;
+
+    if (index >= cloud.points.length()) return;
+
+    cloud.points[index] = transform * vec4(cloud.points[index].position, 1.f); // 1.0
+}

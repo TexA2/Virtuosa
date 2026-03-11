@@ -28,6 +28,8 @@ namespace viShader {
             void setShader1i(const std::string& name, const int data);
             void setShaderMatrix4f(const std::string& name, const float data1,
                                    const float data2, const float data3, const float data4);
+
+            void computeTransform(const glm::mat4& transform, int pointCount);
             
         private:
 
