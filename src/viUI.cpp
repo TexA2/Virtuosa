@@ -406,7 +406,10 @@ namespace viUI {
                     if (!ptr) return;
 
                     viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
-                    widget->getShader()->computeTransform(translationMatrix, cloud->size());
+                    widget->getShader()->getTransform(translationMatrix, cloud->size());
+
+
+                    std::cout << "cloud size " << cloud->size() << std::endl;
 
                     temp_data->readComputeData(cloud->size(), selectedCloudId);
                     

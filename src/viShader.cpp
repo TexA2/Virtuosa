@@ -39,6 +39,9 @@ using namespace viShader;
 
         compileShader();
         createProgram();
+
+
+        computeTransformShader();
     }
 
     void Shader::compileShader() {
@@ -149,10 +152,7 @@ using namespace viShader;
                             data4);
     }
 
-    void Shader::computeTransform(const glm::mat4& transform, int pointCount) {
-        GLuint computeShader;
-        GLuint computeProgram;
-
+    void Shader::computeTransformShader() {
         computeShader = glCreateShader(GL_COMPUTE_SHADER);
 
         std::ifstream fileStream("../shader/transformCloud.comp", std::ios::in);
@@ -188,6 +188,10 @@ using namespace viShader;
         }
 
         glDeleteShader(computeShader);
+    }
+
+
+    void Shader::getTransform(const glm::mat4& transform, int pointCount) {
 
         const GLuint LOCAL_SIZE = 256;
         GLuint numGroups = (pointCount + LOCAL_SIZE - 1) / LOCAL_SIZE;

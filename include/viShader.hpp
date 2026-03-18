@@ -29,7 +29,8 @@ namespace viShader {
             void setShaderMatrix4f(const std::string& name, const float data1,
                                    const float data2, const float data3, const float data4);
 
-            void computeTransform(const glm::mat4& transform, int pointCount);
+            void computeTransformShader();
+            void getTransform(const glm::mat4& transform, int pointCount);
             
         private:
 
@@ -37,6 +38,9 @@ namespace viShader {
             const char* fShaderCode;
 
             unsigned int vertexShader, fragmentShader;
+            
+            GLuint computeShader;
+            GLuint computeProgram;
 
             void compileShader();
             void createProgram();

@@ -137,7 +137,7 @@ namespace viData {
 
 
     void viManageData::readComputeData(int size, std::string select) {
-        pcl::PointCloud<pcl::PointXYZI>::Ptr result (new pcl::PointCloud<pcl::PointXYZI>);
+        pcl::PointCloud<pcl::PointXYZI>::Ptr result (new pcl::PointCloud<pcl::PointXYZI> (size, 1));
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cloudCache[select]->buffer.SSBO);
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 
