@@ -55,6 +55,7 @@ namespace viUI {
 
                     auto temp_camera = _viewCamera.lock();
                     temp_camera->setCameraPos(glm::vec3(centerPoint.x, centerPoint.y, 60));
+                    selectedCloudId = outPath;
                 }
             }
             else if (result == NFD_CANCEL)
