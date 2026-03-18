@@ -191,16 +191,28 @@ using namespace viShader;
     }
 
 
-    void Shader::getTransform(const glm::mat4& transform, int pointCount) {
+    void Shader::getTransform(const glm::mat4& transform, uint pointCount) {
 
         const GLuint LOCAL_SIZE = 256;
+
+        std::cout << "Transforming " << pointCount << " points" << std::endl;
+
         GLuint numGroups = (pointCount + LOCAL_SIZE - 1) / LOCAL_SIZE;
+
+        std::cout << numGroups << " numGroups" << std::endl;
 
         glUseProgram(computeProgram);
 
         uint location = glGetUniformLocation(computeProgram, "transform");
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
+        uint location2 = glGetUniformLocation(computeProgram, "pointCount");
+        glUniform1ui(location2, pointCount);
+
         glDispatchCompute(numGroups,1,1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+        //glFinish();
     }
+

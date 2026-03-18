@@ -30,7 +30,9 @@ namespace viShader {
                                    const float data2, const float data3, const float data4);
 
             void computeTransformShader();
-            void getTransform(const glm::mat4& transform, int pointCount);
+            void getTransform(const glm::mat4& transform, uint pointCount);
+
+
             
         private:
 

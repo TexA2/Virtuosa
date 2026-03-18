@@ -409,9 +409,7 @@ namespace viUI {
                     widget->getShader()->getTransform(translationMatrix, cloud->size());
 
 
-                    std::cout << "cloud size " << cloud->size() << std::endl;
-
-                    temp_data->readComputeData(cloud->size(), selectedCloudId);
+                    temp_data->readComputeData(selectedCloudId);
                     
 
                     glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);

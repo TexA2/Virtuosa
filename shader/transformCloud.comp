@@ -15,15 +15,18 @@ layout(std430, binding = 0) buffer CloudData {
 
 
 uniform mat4 transform;
+uniform uint pointCount;
 
 
 void main() {
 
     uint index = gl_GlobalInvocationID.x;
 
-    if (index >= cloud.points.length()) return;
+    if (index >= pointCount) return;
 
-    vec4 transformedPos = transform * vec4(cloud.points[index].position, 1.f); // 1.0
-
-    cloud.points[index].position   = transformedPos.xyz;
+    if (index < pointCount) 
+    {
+        vec4 transformedPos = transform * vec4(cloud.points[index].position, 1.f); // 1.0
+        cloud.points[index] = PointData(transformedPos.xyz, cloud.points[index].intensity);
+    }
 }
