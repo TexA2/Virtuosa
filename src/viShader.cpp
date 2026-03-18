@@ -206,13 +206,14 @@ using namespace viShader;
         uint location = glGetUniformLocation(computeProgram, "transform");
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(transform));
 
-        uint location2 = glGetUniformLocation(computeProgram, "pointCount");
-        glUniform1ui(location2, pointCount);
-
         glDispatchCompute(numGroups,1,1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 
         //glFinish();
     }
+
+
+
+    
 

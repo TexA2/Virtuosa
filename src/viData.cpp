@@ -138,14 +138,6 @@ namespace viData {
 
     void viManageData::readComputeData(std::string select) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cloudCache[select]->buffer.SSBO);
-
-         GLint bufSize = 0;
-         glGetBufferParameteriv(GL_SHADER_STORAGE_BUFFER, GL_BUFFER_SIZE, &bufSize);
-
-             std::cout << "SSBO size: " << bufSize << " bytes" << std::endl;
-            std::cout << "Expected: " << cloudCache[select]->_cloud->size() * sizeof(pcl::PointXYZI) << " bytes" << std::endl;
-            std::cout << "Points in buffer: " << bufSize / sizeof(pcl::PointXYZI) << std::endl;
-
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 
                        cloudCache[select]->_cloud->size() * sizeof(pcl::PointXYZI), 
                        cloudCache[select]->_cloud->data());
