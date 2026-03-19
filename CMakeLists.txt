@@ -57,7 +57,16 @@ target_compile_definitions(imgui PRIVATE
     IMGUI_IMPL_OPENGL_LOADER_GLAD
 )
 
-add_executable(virtuosa main.cpp src/viShader.cpp src/viCamera.cpp src/viWidget.cpp src/viData.cpp src/viUI.cpp)
+set(VIRTUOSA_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/viShader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/viCamera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/viWidget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/viData.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/viUI.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/treadPool.cpp
+)
+
+add_executable(virtuosa main.cpp  ${VIRTUOSA_SRC})
 
 # Добавляем директории включаемых файлов
 target_include_directories(virtuosa PRIVATE  

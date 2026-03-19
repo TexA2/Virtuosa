@@ -7,6 +7,7 @@
 #include <viShader.hpp>
 #include <viData.hpp>
 #include <viUI.hpp>
+#include <treadPool.hpp>
 #include <optional>
 
 #include "string"
@@ -74,6 +75,7 @@ namespace viWidget {
             std::shared_ptr<viData::viManageData> getCloudData();
             std::shared_ptr<viUI::viManageUI> getMenu();
             GLFWwindow* getWindow() { return window.get();};
+            vi_treads::TreadPool treads_(4);
 
         private:
             std::shared_ptr<GLFWwindow> window;
@@ -81,8 +83,6 @@ namespace viWidget {
             std::shared_ptr<viShader::Shader> cloudShader;
             std::shared_ptr<viData::viManageData> cloudData;
             std::shared_ptr<viUI::viManageUI> menuUI;
-            
-
             WindowSettings _windowSettings;
     };
 }
