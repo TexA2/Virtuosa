@@ -36,7 +36,7 @@ namespace viWidget {
             viMainWidget(const viMainWidget&) = delete;
             viMainWidget& operator=(const viMainWidget&) = delete;
             
-            viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings) {
+            viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings), pool(4) {
                 if (initMainWindow())
                 {
                     initGui();
@@ -75,7 +75,7 @@ namespace viWidget {
             std::shared_ptr<viData::viManageData> getCloudData();
             std::shared_ptr<viUI::viManageUI> getMenu();
             GLFWwindow* getWindow() { return window.get();};
-            vi_treads::TreadPool treads_(4);
+            vi_treads::TreadPool pool;
 
         private:
             std::shared_ptr<GLFWwindow> window;
