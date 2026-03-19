@@ -1,8 +1,8 @@
-#include <treadPool.hpp>
+#include <threadPool.hpp>
 
 namespace vi_treads {
 
-    TreadPool::TreadPool(uint num_tread) {
+    ThreadPool::ThreadPool(uint num_tread) {
         for(uint i = 0; i < num_tread; ++i)
             workers.emplace_back([this]{
                 while(true)
@@ -13,7 +13,6 @@ namespace vi_treads {
                         data_condition.wait(lk, [this]{
                             return stop || !tasks.empty();
                         });
-
                         if (stop && tasks.empty()) return;
                         task = std::move(tasks.front());
                         tasks.pop();
@@ -23,7 +22,7 @@ namespace vi_treads {
             });
     }
 
-    TreadPool::~TreadPool() {
+    ThreadPool::~ThreadPool() {
         {
             std::lock_guard<std::mutex> lk(mt);
             stop = true;

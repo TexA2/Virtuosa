@@ -7,7 +7,7 @@
 #include <viShader.hpp>
 #include <viData.hpp>
 #include <viUI.hpp>
-#include <treadPool.hpp>
+#include <threadPool.hpp>
 #include <optional>
 
 #include "string"
@@ -36,9 +36,10 @@ namespace viWidget {
             viMainWidget(const viMainWidget&) = delete;
             viMainWidget& operator=(const viMainWidget&) = delete;
             
-            viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings), pool(4) {
+            viMainWidget(const WindowSettings& windowSettings = {}) : _windowSettings(windowSettings) {
                 if (initMainWindow())
                 {
+                    pool = std::make_shared<vi_treads::ThreadPool>(4);
                     initGui();
                     initCamera();
                     initShader();
@@ -75,7 +76,7 @@ namespace viWidget {
             std::shared_ptr<viData::viManageData> getCloudData();
             std::shared_ptr<viUI::viManageUI> getMenu();
             GLFWwindow* getWindow() { return window.get();};
-            vi_treads::TreadPool pool;
+            std::shared_ptr<vi_treads::ThreadPool> pool;
 
         private:
             std::shared_ptr<GLFWwindow> window;

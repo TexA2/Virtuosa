@@ -8,14 +8,15 @@
 #include <condition_variable>
 #include <future>
 #include <vector>
+#include <iostream>
 
 namespace vi_treads {
 
-    class TreadPool {
+    class ThreadPool {
         public:
-            TreadPool() = delete;
-            explicit TreadPool(uint num_tread);
-            ~TreadPool();
+            ThreadPool() = delete;
+            explicit ThreadPool(uint num_tread);
+            ~ThreadPool();
 
             template<typename Func, typename... Args>
                 void execute(Func&& func, Args&&... args);
@@ -37,7 +38,7 @@ namespace vi_treads {
 
     //для void function
     template<typename Func, typename... Args>
-        void TreadPool::execute(Func&& func, Args&&... args)
+        void ThreadPool::execute(Func&& func, Args&&... args)
         {
             {
             std::lock_guard<std::mutex> lk(mt);
@@ -48,7 +49,7 @@ namespace vi_treads {
 
         //для функций с возращаемым значением
     template<typename Func, typename... Args>
-        auto TreadPool::submit(Func&& func, Args&&... args) -> std::future<decltype(func(args...))>
+        auto ThreadPool::submit(Func&& func, Args&&... args) -> std::future<decltype(func(args...))>
         {
             using return_type = decltype(func(args...));
 

@@ -63,7 +63,7 @@ set(VIRTUOSA_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/viWidget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/viData.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/viUI.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/treadPool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/threadPool.cpp
 )
 
 add_executable(virtuosa main.cpp  ${VIRTUOSA_SRC})

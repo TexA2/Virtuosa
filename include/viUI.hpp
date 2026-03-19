@@ -3,6 +3,7 @@
 
 #include <viCamera.hpp>
 #include <viData.hpp>
+#include <threadPool.hpp>
 #include <cstdio>
 #include <memory>
 
@@ -41,10 +42,12 @@ namespace viUI {
         public:
             viManageUI(std::shared_ptr<viData::viManageData> &cloudData,
                        std::shared_ptr<viCamera::Camera> &viewCamera,
-                       viWidget::WindowSettings &windowsSetting) :
+                       viWidget::WindowSettings &windowsSetting,
+                        std::shared_ptr<vi_treads::ThreadPool> widgetPool) :
                         _cloudData(cloudData),
                         _viewCamera(viewCamera),
-                        _windowsSetting(windowsSetting)
+                        _windowsSetting(windowsSetting),
+                        _pool(widgetPool)
                         {
                             clear_color = glm::vec4(20.0f / 255.0f,
                                                     13.0f / 255.0f,
@@ -68,12 +71,14 @@ namespace viUI {
             void transformMode(GLFWwindow* window);
 
             glm::vec4 clear_color;
+            std::string lastLoadedPath;
+            std::string selectedCloudId;
+            
         private:
             std::weak_ptr<viData::viManageData> _cloudData;
             std::weak_ptr<viCamera::Camera> _viewCamera;
+            std::weak_ptr<vi_treads::ThreadPool> _pool;
             viWidget::WindowSettings& _windowsSetting;
-
-            std::string selectedCloudId;
 
             Mode curMode;
 
@@ -81,8 +86,6 @@ namespace viUI {
             // для теста
             ResultData resultData;
             GLuint resultBuffer;
-           // GLuint computeShader;
-           // GLuint computeProgram;
 
             bool show_BackroundColor = false;
             bool showTransform_ = false;

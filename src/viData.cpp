@@ -32,8 +32,6 @@ namespace viData {
                 temp_cloud->intensity.push_back(g);
                 temp_cloud->intensity.push_back(b);
             }
-            cloudBuffer(temp_cloud);
-
             cloudCache[name] = temp_cloud;
         } else 
         {

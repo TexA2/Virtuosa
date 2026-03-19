@@ -41,21 +41,30 @@ namespace viUI {
             args.filterList = filters;
             args.filterCount = 1;
             nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &args);
+
+
             if (result == NFD_OKAY)
             {
-                if(auto temp_cloudData = _cloudData.lock())
+                if(auto pool = _pool.lock())
                 {
-                    temp_cloudData->pointCloudOpen(outPath);
-                    glm::vec3 centerPoint = (temp_cloudData->cloudCache[outPath]->bounds.max +
-                                             temp_cloudData->cloudCache[outPath]->bounds.min );
-                    centerPoint.x /= 2;
-                    centerPoint.y /= 2;
+                    std::string path = outPath;
+                    pool->execute([this, path]{
+                        if(auto temp_cloudData = _cloudData.lock())
+                        {
+                            temp_cloudData->pointCloudOpen(path);
 
-                    std::cout << "centerPoint " << centerPoint.x  << " " << centerPoint.y << std::endl;
-
-                    auto temp_camera = _viewCamera.lock();
-                    temp_camera->setCameraPos(glm::vec3(centerPoint.x, centerPoint.y, 60));
-                    selectedCloudId = outPath;
+                            std::cout << "yes " << std::endl;
+                    
+                            glm::vec3 centerPoint = (temp_cloudData->cloudCache[path]->bounds.max +
+                                                    temp_cloudData->cloudCache[path]->bounds.min );
+                            centerPoint.x /= 2;
+                            centerPoint.y /= 2;
+                            std::cout << "centerPoint " << centerPoint.x  << " " << centerPoint.y << std::endl;
+                            auto temp_camera = _viewCamera.lock();
+                            temp_camera->setCameraPos(glm::vec3(centerPoint.x, centerPoint.y, 60));
+                            lastLoadedPath = path;
+                        }
+                    });
                 }
             }
             else if (result == NFD_CANCEL)
@@ -66,7 +75,6 @@ namespace viUI {
             {
                 printf("Error: %s\n", NFD_GetError());
             }
-
             NFD_Quit();
         }
         if (ImGui::MenuItem("Save", "Ctrl+S")) {

@@ -114,7 +114,7 @@ namespace viWidget {
     }
 
     void viMainWidget::initUI() {
-        menuUI = std::make_shared<viUI::viManageUI>(cloudData, viewCamera, _windowSettings);
+        menuUI = std::make_shared<viUI::viManageUI>(cloudData, viewCamera, _windowSettings, pool);
     }
 
 // ============================================================================
@@ -162,6 +162,14 @@ namespace viWidget {
         if (glfwGetWindowAttrib(window.get(), GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
+        }
+
+        //TODO: Придумать что с этим сделать
+        if (!menuUI->lastLoadedPath.empty())
+        {
+            cloudData->cloudBuffer(cloudData->cloudCache[menuUI->lastLoadedPath]);
+            menuUI->selectedCloudId = menuUI->lastLoadedPath;
+            menuUI->lastLoadedPath.clear();
         }
 
         for (auto& pair : cloudData->cloudCache)
