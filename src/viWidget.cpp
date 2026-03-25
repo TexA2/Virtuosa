@@ -200,7 +200,7 @@ namespace viWidget {
                         glEnableVertexAttribArray(1);
                         glVertexAttribDivisor(1, 1);
                     }
-                    glDrawArraysInstanced(GL_POINTS, 0, 1, pair.second->_cloud->size());
+                    glDrawArraysInstanced(GL_POINTS, 0, 1, pair.second->cloud_size());
                     glBindVertexArray(0);
                     
                     // glBindFramebuffer(GL_FRAMEBUFFER, 0);

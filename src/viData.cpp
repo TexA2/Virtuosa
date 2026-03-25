@@ -7,10 +7,26 @@ namespace viData {
         return obj.filename().string();
     }
 
+    void detectFormat(std::string path) {
+        pcl::PCLPointCloud2 cloud_blob;
+
+
+        if (pcl::io::loadPCDFile(path, cloud_blob) == -1)
+            std::cerr << "Ошибка: не удалось загрузить файл " << path << std::endl;
+
+        for (const auto& field : cloud_blob.fields) {
+            std::cout << field.name << " offset " << field.offset << std::endl;
+        }
+
+
+    }
+
     void viManageData::pointCloudOpen(std::string path) {
 
-        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
-        pcl::io::loadPCDFile<pcl::PointXYZI>(path, *cloud);
+        detectFormat(path);
+
+        pcl::PCLPointCloud2::Ptr cloud (new pcl::PCLPointCloud2);
+        pcl::io::loadPCDFile(path, *cloud);
         std::string name = path;
 
         if (cloudCache.find(name) == cloudCache.end())
@@ -20,10 +36,11 @@ namespace viData {
 
             calculateCloudBounds(temp_cloud);
 
-            for (uint i = 0; i < temp_cloud->_cloud->size(); ++i)
+            for (uint i = 0; i < temp_cloud->cloud_size(); ++i)
             {
-                float normalized_i = (temp_cloud->_cloud->points[i].intensity - temp_cloud->bounds.cloudIntensity.x)
-                                    / (temp_cloud->bounds.cloudIntensity.y- temp_cloud->bounds.cloudIntensity.x);  
+                float normalized_i = (temp_cloud->_cloud->at<float>(i, 12) 
+                                    - temp_cloud->bounds.cloudIntensity.x)
+                                    / (temp_cloud->bounds.cloudIntensity.y - temp_cloud->bounds.cloudIntensity.x);  
 
                 float r, g, b;
                 intensityToColor(normalized_i, r, g, b);
@@ -43,18 +60,23 @@ namespace viData {
 
     void viManageData::calculateCloudBounds(std::shared_ptr<CloudData> cloud) {
         
-        for (const auto& p : cloud->_cloud->points) 
+        for (uint i = 0; i < cloud->cloud_size(); ++i)
         {
-            cloud->bounds.min.x = std::min(cloud->bounds.min.x, p.x);
-            cloud->bounds.min.y = std::min(cloud->bounds.min.y, p.y);
-            cloud->bounds.min.z = std::min(cloud->bounds.min.z, p.z);
+            float x = cloud->_cloud->at<float>(i, 0);
+            float y = cloud->_cloud->at<float>(i, 4);
+            float z = cloud->_cloud->at<float>(i, 8);
+            float intensity = cloud->_cloud->at<float>(i, 12);
 
-            cloud->bounds.max.x = std::max(cloud->bounds.max.x, p.x);
-            cloud->bounds.max.y = std::max(cloud->bounds.max.y, p.y);
-            cloud->bounds.max.z = std::max(cloud->bounds.max.z, p.z);
+            cloud->bounds.min.x = std::min(cloud->bounds.min.x, x);
+            cloud->bounds.min.y = std::min(cloud->bounds.min.y, y);
+            cloud->bounds.min.z = std::min(cloud->bounds.min.z, z);
 
-            cloud->bounds.cloudIntensity.x = std::min(cloud->bounds.cloudIntensity.x, p.intensity);
-            cloud->bounds.cloudIntensity.y = std::max(cloud->bounds.cloudIntensity.y, p.intensity);
+            cloud->bounds.max.x = std::max(cloud->bounds.max.x, x);
+            cloud->bounds.max.y = std::max(cloud->bounds.max.y, y);
+            cloud->bounds.max.z = std::max(cloud->bounds.max.z, z);
+
+            cloud->bounds.cloudIntensity.x = std::min(cloud->bounds.cloudIntensity.x, intensity);
+            cloud->bounds.cloudIntensity.y = std::max(cloud->bounds.cloudIntensity.y, intensity);
         }
     }
 
@@ -67,9 +89,9 @@ namespace viData {
         glBindVertexArray(cloud->buffer.VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, cloud->buffer.pointVBO);
-        glBufferData(GL_ARRAY_BUFFER, cloud->_cloud->size() * sizeof(pcl::PointXYZI), cloud->_cloud->data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, cloud->cloud_size() * sizeof(uint8_t), cloud->_cloud->data.data(), GL_DYNAMIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(pcl::PointXYZI), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(uint8_t), (void*)0);
         glEnableVertexAttribArray(0);
 
         glVertexAttribDivisor(0, 1); 
@@ -92,8 +114,8 @@ namespace viData {
         glGenBuffers(1, &cloud->buffer.SSBO);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cloud->buffer.SSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, 
-                    cloud->_cloud->size() * sizeof(pcl::PointXYZI),
-                    cloud->_cloud->data(),                       
+                    cloud->cloud_size() * sizeof(uint8_t),
+                    cloud->_cloud->data.data(),                       
                     GL_DYNAMIC_DRAW);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, cloud->buffer.SSBO);
     }
@@ -120,24 +142,34 @@ namespace viData {
 
 
     void viManageData::newCloud() {
-        std::string name ("new cloud");
-        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
 
-        std::shared_ptr<CloudData> temp_cloud = std::make_shared<CloudData> ();
-        temp_cloud->_cloud = cloud;
-        cloudBuffer(temp_cloud);
-        cloudCache[name] = temp_cloud;
+        //TODO Выбрать какого типо облако будет
+        // и создавать PCLPointCloud2 с нужными полями
+
+        // std::string name ("new cloud");
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
+
+        // std::shared_ptr<CloudData> temp_cloud = std::make_shared<CloudData> ();
+        // temp_cloud->_cloud = cloud;
+        // cloudBuffer(temp_cloud);
+        // cloudCache[name] = temp_cloud;
     }
 
     void viManageData::savePointCloud(std::string nameCloud, std::string path) {
-        pcl::io::savePCDFileASCII (path, *(cloudCache[nameCloud]->_cloud));
+        // pcl::io::savePCDFileASCII (path, *(cloudCache[nameCloud]->_cloud));
+        // Для Интенсивности 
+        // провекру через поля
+        pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+        pcl::fromPCLPointCloud2(*cloudCache[nameCloud]->_cloud, *cloud);
+        pcl::io::savePCDFileASCII(path, *cloud);
+        std::cout << "Saved cloud as XYZI to: " << path << std::endl;
     }
 
 
     void viManageData::readComputeData(std::string select) {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, cloudCache[select]->buffer.SSBO);
         glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, 
-                       cloudCache[select]->_cloud->size() * sizeof(pcl::PointXYZI), 
-                       cloudCache[select]->_cloud->data());
+                       cloudCache[select]->cloud_size() * sizeof(uint8_t), 
+                       cloudCache[select]->_cloud->data.data());
     }
 }

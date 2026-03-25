@@ -369,20 +369,18 @@ namespace viUI {
             {
                 auto cloud = temp_cloud->cloudCache[selectedCloudId]->_cloud;
 
-                pcl::PointXYZI point;
+                float intensity = 1.f;
 
-                point.x = RayOrigin.x;
-                point.y = RayOrigin.y; 
-                point.z = RayOrigin.z;
-                point.intensity = 1.f;
+                cloud->data.push_back(static_cast<uint8_t>(RayOrigin.x)); //будет ли рабоать с новым облаком?
+                cloud->data.push_back(static_cast<uint8_t>(RayOrigin.y));
+                cloud->data.push_back(static_cast<uint8_t>(RayOrigin.z));
 
-                cloud->push_back(point);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
                 temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
             
                 glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.pointVBO);
-                glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, cloud->data.size() * sizeof(uint8_t), cloud->data.data(), GL_DYNAMIC_DRAW);
                 glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.intensityVBO);
                 glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->intensity.size() * sizeof(float), temp_cloud->cloudCache[selectedCloudId]->intensity.data(), GL_DYNAMIC_DRAW);
             }
@@ -409,20 +407,22 @@ namespace viUI {
                                                             glm::vec3(moveX, moveY, moveZ));
                 if (auto temp_data = _cloudData.lock())
                 {
-                    auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
+                    auto cloud_data = temp_data->cloudCache[selectedCloudId];
+                    auto cloud = cloud_data->_cloud;
+                    
 
                     void* ptr = glfwGetWindowUserPointer(window);
                     if (!ptr) return;
 
                     viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
-                    widget->getShader()->getTransform(translationMatrix, cloud->size());
+                    widget->getShader()->getTransform(translationMatrix, cloud->data.size());
 
 
                     temp_data->readComputeData(selectedCloudId);
                     
 
                     glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);
-                    glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+                    glBufferData(GL_ARRAY_BUFFER, cloud->data.size() * sizeof(uint8_t), cloud->data.data(), GL_DYNAMIC_DRAW);
                 }
             }
             ImGui::PopItemWidth();
@@ -444,18 +444,19 @@ namespace viUI {
 
                 if (auto temp_data = _cloudData.lock())
                 {
-                    auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
-                    for (auto &point : *cloud)
-                    {
-                        glm::vec4 pointV (point.x, point.y, point.z, 1.f);
-                        pointV = scalingMatrix * pointV;
-                        point.x = pointV.x;
-                        point.y = pointV.y;
-                        point.z = pointV.z;
-                    }
+                    // TODO переделать под новый формат
+                    // auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
+                    // for (auto &point : cloud->data)
+                    // {
+                    //     glm::vec4 pointV (point.x, point.y, point.z, 1.f);
+                    //     pointV = scalingMatrix * pointV;
+                    //     point.x = pointV.x;
+                    //     point.y = pointV.y;
+                    //     point.z = pointV.z;
+                    // }
 
-                    glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);
-                    glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+                    // glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);
+                    // glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
                 }
             }
             ImGui::PopItemWidth();

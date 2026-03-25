@@ -4,6 +4,7 @@
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -22,7 +23,7 @@ namespace viData {
 
     struct CloudData {
 
-        pcl::PointCloud<pcl::PointXYZI>::Ptr _cloud = nullptr;
+        pcl::PCLPointCloud2::Ptr _cloud = nullptr;
         std::vector<float> intensity;                                 // intensity color for point
         glm::vec4 point_color = glm::vec4(1.f, 1.f, 0.f, 1.0f);
 
@@ -30,6 +31,7 @@ namespace viData {
         bool isSelected = false;
         bool isVisible = true;
         bool intensityColor = true;
+        double cloud_size() { return _cloud->height * _cloud->width; }
 
 
         struct Buffer
