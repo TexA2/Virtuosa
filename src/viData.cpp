@@ -89,9 +89,9 @@ namespace viData {
         glBindVertexArray(cloud->buffer.VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, cloud->buffer.pointVBO);
-        glBufferData(GL_ARRAY_BUFFER, cloud->cloud_size() * sizeof(uint8_t), cloud->_cloud->data.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, cloud->_cloud->data.size(), cloud->_cloud->data.data(), GL_DYNAMIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(uint8_t), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 4 , (void*)0);
         glEnableVertexAttribArray(0);
 
         glVertexAttribDivisor(0, 1); 
