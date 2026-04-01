@@ -369,18 +369,26 @@ namespace viUI {
             {
                 auto cloud = temp_cloud->cloudCache[selectedCloudId]->_cloud;
 
-                float intensity = 1.f;
+                float point[4] {
+                    RayOrigin.x,
+                    RayOrigin.y,
+                    RayOrigin.z,
+                    1.f
+                };
 
-                cloud->data.push_back(static_cast<uint8_t>(RayOrigin.x)); //будет ли рабоать с новым облаком?
-                cloud->data.push_back(static_cast<uint8_t>(RayOrigin.y));
-                cloud->data.push_back(static_cast<uint8_t>(RayOrigin.z));
+                auto* bytes = reinterpret_cast<std::uint8_t*> (point);
+                cloud->data.insert(cloud->data.end(), bytes, bytes + sizeof(point));
 
-                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
-                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
-                temp_cloud->cloudCache.begin()->second->intensity.push_back(1);
+     
+                temp_cloud->cloudCache[selectedCloudId]->intensity.push_back(1);
+                temp_cloud->cloudCache[selectedCloudId]->intensity.push_back(1);
+                temp_cloud->cloudCache[selectedCloudId]->intensity.push_back(1);
+
+                ++cloud->height;
             
                 glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.pointVBO);
-                glBufferData(GL_ARRAY_BUFFER, cloud->data.size() * sizeof(uint8_t), cloud->data.data(), GL_DYNAMIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, cloud->data.size(), cloud->data.data(), GL_DYNAMIC_DRAW);
+
                 glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.intensityVBO);
                 glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->intensity.size() * sizeof(float), temp_cloud->cloudCache[selectedCloudId]->intensity.data(), GL_DYNAMIC_DRAW);
             }
