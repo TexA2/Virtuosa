@@ -344,55 +344,25 @@ namespace viUI {
         }
 
         ImGuiIO& io = ImGui::GetIO();
-        if (!io.WantCaptureMouse && io.MouseClicked[0])
-        {
-            double xpos, ypos;
-            glm::vec3 RayOrigin;
-            glm::vec3 RayDirection;
-            float scale = 1;
-
-            glfwGetCursorPos(window, &xpos, &ypos);
-
-            if(auto temp_camera = _viewCamera.lock())
+            if (!io.WantCaptureMouse && io.MouseClicked[0])
             {
-                temp_camera->rayCast(window, xpos, ypos);
-                RayOrigin = temp_camera->rayData.RayOrigin; 
-                RayDirection = temp_camera->rayData.RayDirection;
+                if (auto temp_camera = _viewCamera.lock())
+                {
+                    double xpos, ypos;
+                    glfwGetCursorPos(window, &xpos, &ypos);
+                    glfwGetWindowSize(window, &temp_camera->windowWidth, &temp_camera->windowHeight);
+                    glGetIntegerv(GL_VIEWPORT, temp_camera->viewport);
+
+                    std::shared_ptr<viCamera::Camera> camera_copy = temp_camera;
+
+                    auto future = std::async(std::launch::async, [camera_copy, xpos, ypos]()
+                    {
+                        return camera_copy->rayCast(xpos, ypos);
+                    });
+
+                    temp_camera->rayCastResultFuture = std::move(future);
+                }
             }
-
-            std::cout << "RayOrigin " << RayOrigin.x  << " " <<  RayOrigin.y << std::endl;
-            std::cout << "RayDirection " << RayDirection.x << " " << RayDirection.y << std::endl;
-            std::cout  << std::endl;
-            std::cout << std::endl;
-
-            if(auto temp_cloud = _cloudData.lock())
-            {
-                auto cloud = temp_cloud->cloudCache[selectedCloudId]->_cloud;
-
-                float point[4] {
-                    RayOrigin.x,
-                    RayOrigin.y,
-                    RayOrigin.z,
-                    1.f
-                };
-
-                auto* bytes = reinterpret_cast<std::uint8_t*> (point);
-                cloud->data.insert(cloud->data.end(), bytes, bytes + sizeof(point));
-
-     
-                temp_cloud->cloudCache[selectedCloudId]->intensity.push_back(1);
-                temp_cloud->cloudCache[selectedCloudId]->intensity.push_back(1);
-                temp_cloud->cloudCache[selectedCloudId]->intensity.push_back(1);
-
-                ++cloud->height;
-            
-                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.pointVBO);
-                glBufferData(GL_ARRAY_BUFFER, cloud->data.size(), cloud->data.data(), GL_DYNAMIC_DRAW);
-
-                glBindBuffer(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->buffer.intensityVBO);
-                glBufferData(GL_ARRAY_BUFFER, temp_cloud->cloudCache[selectedCloudId]->intensity.size() * sizeof(float), temp_cloud->cloudCache[selectedCloudId]->intensity.data(), GL_DYNAMIC_DRAW);
-            }
-        }
     }
 
     void viManageUI::transformMode(GLFWwindow* window) {

@@ -172,6 +172,44 @@ namespace viWidget {
             menuUI->lastLoadedPath.clear();
         }
 
+        if (viewCamera->rayCastResultFuture.valid() && 
+            viewCamera->rayCastResultFuture.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) 
+            {
+                auto result = viewCamera->rayCastResultFuture.get();
+
+                std::cout << "RayOrigin " << result.RayOrigin.x  << " " <<  result.RayOrigin.y << std::endl;
+                std::cout << "RayDirection " << result.RayDirection.x << " " << result.RayDirection.y << std::endl;
+                std::cout  << std::endl;
+                std::cout << std::endl;
+
+                //TODO: При пустом облаке точки добавляются не в нужную точку
+                //При добалении множества точек, они не будут поспевать за мышкой, и будут добавляться с задершкой
+                auto cloud = cloudData->cloudCache[menuUI->selectedCloudId]->_cloud;
+
+                float point[4] {
+                    result.RayOrigin.x,
+                    result.RayOrigin.y,
+                    result.RayOrigin.z,
+                    1.f
+                    };
+
+                    auto* bytes = reinterpret_cast<std::uint8_t*> (point);
+                    cloud->data.insert(cloud->data.end(), bytes, bytes + sizeof(point));
+
+        
+                    cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
+                    cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
+                    cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
+
+                    ++cloud->height;
+                
+                    glBindBuffer(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->buffer.pointVBO);
+                    glBufferData(GL_ARRAY_BUFFER, cloud->data.size(), cloud->data.data(), GL_DYNAMIC_DRAW);
+
+                    glBindBuffer(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->buffer.intensityVBO);
+                    glBufferData(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->intensity.size() * sizeof(float), cloudData->cloudCache[menuUI->selectedCloudId]->intensity.data(), GL_DYNAMIC_DRAW);
+            }
+
         for (auto& pair : cloudData->cloudCache)
             {
                 if (pair.second->isVisible) 

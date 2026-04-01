@@ -8,18 +8,6 @@
 
 using namespace viCamera;
 
-    void Camera::bufferinit() {
-
-        rayData.RayDirection = glm::vec3(1.f);
-        rayData.RayOrigin = glm::vec3(1.f);
-        rayData.threshold = 1.0f;
-
-        glGenBuffers(1, &rayBuffer);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
-        glBufferData(GL_SHADER_STORAGE_BUFFER,  sizeof(RayData), &rayData, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, rayBuffer);
-    }
-
     void Camera::zoomCamera(double yoffset) {
         float zoomSpeed = getCameraSpeed().scrool * deltaTime;
 
@@ -228,18 +216,15 @@ using namespace viCamera;
         return model * projection * lookAt;
     }
 
-    void Camera::rayCast(GLFWwindow* window, double xpos, double ypos) {
-        void* ptr = glfwGetWindowUserPointer(window);
-        if (!ptr) return;
-
-        viWidget::viMainWidget* widget = static_cast<viWidget::viMainWidget*>(ptr);
-
+    RayData Camera::rayCast(double xpos, double ypos) {
+        RayData rayData;
+  
         // Получаем размеры окна
-        int windowWidth, windowHeight;
-        glfwGetWindowSize(window, &windowWidth, &windowHeight);
+        // int windowWidth, windowHeight;
+        // glfwGetWindowSize(window, &windowWidth, &windowHeight);
 
-        GLint viewport[4];
-        glGetIntegerv(GL_VIEWPORT, viewport);
+        // GLint viewport[4];
+        // glGetIntegerv(GL_VIEWPORT, viewport);
 
         // Корректируем координаты относительно viewport
         double adjustedX = xpos - viewport[0];
@@ -292,8 +277,7 @@ using namespace viCamera;
         rayData.RayDirection = rayDirWorld;
         rayData.threshold = 1000.f;
 
-        // glBindBuffer(GL_SHADER_STORAGE_BUFFER, rayBuffer);
-        // glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(RayData), &rayData);
+        return rayData;
     }
 
     void Camera::setCameraPos(glm::vec3 newPos) {

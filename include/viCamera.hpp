@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <future>
 
 
 namespace viCamera {
@@ -47,8 +48,6 @@ namespace viCamera {
                                                     _projectionType(ProjectType::Perspective)
 
             {
-                bufferinit();
-
                 model = glm::mat4(1.0f);
                 lookAt = glm::mat4(1.f);
                 currentOrient = glm::quat(1, 0, 0, 0);
@@ -63,7 +62,6 @@ namespace viCamera {
             ~Camera() = default;
 
 
-            void bufferinit();
             glm::mat4 moveCamera(GLFWwindow *window);
             void zoomCamera(double yoffset);
             void processMouseMovement(double xpos, double ypos);
@@ -75,7 +73,7 @@ namespace viCamera {
             void setPerspectiveProjection();
             void updateProjection();
             void toggleProjection();
-            void rayCast(GLFWwindow* window, double xpos, double ypos);
+            [[nodiscard]]RayData rayCast(double xpos, double ypos);
             void setCameraPos(glm::vec3 newPos);
 
             glm::mat4 getMvpMatrix();
@@ -90,14 +88,15 @@ namespace viCamera {
 
 
      uint rayBuffer;
-     RayData rayData;
+     std::future<RayData> rayCastResultFuture;
+     int windowWidth, windowHeight;
+     int viewport[4];
      
      
         private:
 
             CameraSettings _cameraSettings;
             ProjectType _projectionType;
-            //RayData rayData;
 
             glm::mat4 model;
             glm::mat4 projection;
