@@ -15,7 +15,6 @@
 #include <fstream>
 #include <sstream>
 
-
 namespace viWidget
 {
     struct WindowSettings;

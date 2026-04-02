@@ -17,8 +17,6 @@ namespace viData {
         for (const auto& field : cloud_blob.fields) {
             std::cout << field.name << " offset " << field.offset << std::endl;
         }
-
-
     }
 
     void viManageData::pointCloudOpen(std::string path) {
@@ -81,6 +79,7 @@ namespace viData {
     }
 
     void viManageData::cloudBuffer(std::shared_ptr<CloudData> cloud) {
+        // TODO для разных облаков по разному чтение
 
         glGenVertexArrays(1, &cloud->buffer.VAO);
         glGenBuffers(1, &cloud->buffer.pointVBO); 
@@ -180,7 +179,7 @@ namespace viData {
 
         std::shared_ptr<CloudData> temp_cloudData = std::make_shared<CloudData> ();
         temp_cloudData->_cloud = cloud2;
-        cloudBuffer(temp_cloudData);
+        //cloudBuffer(temp_cloudData); // проблема многопоточки
         cloudCache[name] = temp_cloudData;
     }
 

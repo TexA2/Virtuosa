@@ -481,7 +481,14 @@ namespace viUI {
             {
                 if (auto temp_cloud = _cloudData.lock())
                 {
-                    temp_cloud->newCloud(type);
+                    std::shared_ptr<viData::viManageData> copy = temp_cloud;
+                    auto temp_pool = _pool.lock();
+                    temp_pool->execute([this,&copy,type]()
+                    {
+                        copy->newCloud(type);
+                        lastLoadedPath = "new_cloud"; // TODO: костыль от одного облака
+                                                      // но имя нового облака пока задается хардом, поэтому пока оставим
+                    });
                 }
             }
         }
