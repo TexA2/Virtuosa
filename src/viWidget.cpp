@@ -184,6 +184,7 @@ namespace viWidget {
 
                 //TODO: При пустом облаке точки добавляются не в нужную точку
                 //При добалении множества точек, они не будут поспевать за мышкой, и будут добавляться с задершкой
+                //Проблема оказалась в выделении памяти, нужно будет использовать glBufferSubData
                 auto cloud = cloudData->cloudCache[menuUI->selectedCloudId]->_cloud;
 
                 float point[4] {
@@ -196,18 +197,33 @@ namespace viWidget {
                     auto* bytes = reinterpret_cast<std::uint8_t*> (point);
                     cloud->data.insert(cloud->data.end(), bytes, bytes + sizeof(point));
 
-        
+                    uint oldSizeIntensity =  cloudData->cloudCache[menuUI->selectedCloudId]->intensity.size();
+
                     cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
                     cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
                     cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
 
                     ++cloud->height;
+
+                    uint newSizeCloud = cloud->data.size() - cloudData->cloudCache[menuUI->selectedCloudId]->buffer.used;
+
+                    std::cout << "CAP " << cloud->data.capacity() << "  SIZE " << cloud->data.size() << std::endl;
+
+                    //TODO: добавиьт перевыделенеие памяти
                 
                     glBindBuffer(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->buffer.pointVBO);
-                    glBufferData(GL_ARRAY_BUFFER, cloud->data.size(), cloud->data.data(), GL_DYNAMIC_DRAW);
+                    glBufferSubData(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->buffer.used,
+                                                newSizeCloud, bytes);
+
+                    uint newSizeIntensity = cloudData->cloudCache[menuUI->selectedCloudId]->intensity.size() - oldSizeIntensity;
+
+                    float *ptr = cloudData->cloudCache[menuUI->selectedCloudId]->intensity.data();
+                    ptr += oldSizeIntensity;
 
                     glBindBuffer(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->buffer.intensityVBO);
-                    glBufferData(GL_ARRAY_BUFFER, cloudData->cloudCache[menuUI->selectedCloudId]->intensity.size() * sizeof(float), cloudData->cloudCache[menuUI->selectedCloudId]->intensity.data(), GL_DYNAMIC_DRAW);
+                    glBufferSubData(GL_ARRAY_BUFFER, oldSizeIntensity * sizeof(float), newSizeIntensity * sizeof(float), ptr);
+            
+                    cloudData->cloudCache[menuUI->selectedCloudId]->buffer.used += newSizeCloud;
             }
 
         for (auto& pair : cloudData->cloudCache)

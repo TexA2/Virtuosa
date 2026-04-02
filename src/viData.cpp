@@ -20,7 +20,7 @@ namespace viData {
     }
 
     void viManageData::pointCloudOpen(std::string path) {
-        
+
         std::lock_guard<std::mutex> lk(mt);
 
         detectFormat(path);
@@ -89,8 +89,12 @@ namespace viData {
 
         glBindVertexArray(cloud->buffer.VAO);
 
+        cloud->buffer.used = cloud->_cloud->data.size();
+        cloud->buffer.allocated = cloud->buffer.used * 2;
+
         glBindBuffer(GL_ARRAY_BUFFER, cloud->buffer.pointVBO);
-        glBufferData(GL_ARRAY_BUFFER, cloud->_cloud->data.size(), cloud->_cloud->data.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, cloud->buffer.allocated, nullptr, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, cloud->_cloud->data.size(), cloud->_cloud->data.data());
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 4 , (void*)0);
         glEnableVertexAttribArray(0);
@@ -98,7 +102,8 @@ namespace viData {
         glVertexAttribDivisor(0, 1); 
 
         glBindBuffer(GL_ARRAY_BUFFER, cloud->buffer.intensityVBO);
-        glBufferData(GL_ARRAY_BUFFER, cloud->intensity.size() * sizeof(float), cloud->intensity.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, cloud->intensity.capacity() * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, cloud->intensity.size() * sizeof(float), cloud->intensity.data());
 
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(1);

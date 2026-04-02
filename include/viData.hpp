@@ -41,7 +41,12 @@ namespace viData {
             GLuint VAO          = 0;
             GLuint pointVBO     = 0;
             GLuint intensityVBO = 0;
+            
             GLuint SSBO = 0;
+
+            size_t allocated = 0;  // выделенная память
+            size_t used      = 0;  // используемая память
+            
         } buffer;
         
         struct Bounds
