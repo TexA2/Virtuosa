@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 #include <algorithm>
+#include <variant>
 
 
 namespace viData {
@@ -60,7 +61,7 @@ namespace viData {
             void pointCloudOpen(std::string path);
             void cloudBuffer(std::shared_ptr<CloudData> cloud);
             void calculateCloudBounds(std::shared_ptr<CloudData> cloud);
-            void newCloud();
+            void newCloud(uint8_t type);
             void savePointCloud(std::string nameCloud, std::string path);
 
             void readComputeData(std::string select);

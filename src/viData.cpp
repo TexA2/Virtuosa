@@ -141,18 +141,46 @@ namespace viData {
     }
 
 
-    void viManageData::newCloud() {
+    void viManageData::newCloud(uint8_t type) {
 
-        //TODO Выбрать какого типо облако будет
-        // и создавать PCLPointCloud2 с нужными полями
+        using CloudVariant = std::variant<
+            pcl::PointCloud<pcl::PointXYZ>::Ptr,
+            pcl::PointCloud<pcl::PointXYZI>::Ptr,
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr>;
 
-        // std::string name ("new cloud");
-        // pcl::PointCloud<pcl::PointXYZI>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZI>);
+        CloudVariant temp_cloud;
 
-        // std::shared_ptr<CloudData> temp_cloud = std::make_shared<CloudData> ();
-        // temp_cloud->_cloud = cloud;
-        // cloudBuffer(temp_cloud);
-        // cloudCache[name] = temp_cloud;
+        switch (type)
+        {
+        case 1:
+            {
+                temp_cloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
+                break;
+            }
+        case 2:
+            {
+                temp_cloud = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
+                break;
+            }
+        case 3:
+            {
+                temp_cloud = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+                break;
+            }
+        }
+
+        pcl::PCLPointCloud2::Ptr cloud2 (new pcl::PCLPointCloud2());
+
+        std::visit([&cloud2](auto& cloud){
+            pcl::toPCLPointCloud2(*cloud, *cloud2);
+        }, temp_cloud);
+
+        std::string name ("new_cloud");
+
+        std::shared_ptr<CloudData> temp_cloudData = std::make_shared<CloudData> ();
+        temp_cloudData->_cloud = cloud2;
+        cloudBuffer(temp_cloudData);
+        cloudCache[name] = temp_cloudData;
     }
 
     void viManageData::savePointCloud(std::string nameCloud, std::string path) {

@@ -240,17 +240,11 @@ namespace viWidget {
                     }
                     glDrawArraysInstanced(GL_POINTS, 0, 1, pair.second->cloud_size());
                     glBindVertexArray(0);
-                    
-                    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-                    // glBindVertexArray(VAO);
-                    // glActiveTexture(GL_TEXTURE0);
-                    // glBindTexture(GL_TEXTURE_2D, textureBuffer); // Текстура из вашего фреймбуфера
-                    // glDrawArraysInstanced(GL_POINTS, 0, 1,cloud_size);
                 }
             }
 
         cloudShader->unbind();
-    // Start the Dear ImGui frame
+        
         menuUI->renderUI(window.get());
 
         glfwSwapBuffers(window.get());

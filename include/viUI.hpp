@@ -89,6 +89,7 @@ namespace viUI {
 
             bool show_BackroundColor = false;
             bool showTransform_ = false;
+            bool showNewCloud_ = false;
             bool show_pointColor = false;
             bool buttonQuit_ = false;
     };

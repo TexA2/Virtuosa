@@ -25,13 +25,9 @@ namespace viUI {
     }
 
     void viManageUI::ShowExampleMenuFile() {
-        if (ImGui::MenuItem("New")) 
-        { 
-            if (auto temp_data = _cloudData.lock())
-                temp_data->newCloud();
-        }
-
-
+        if (ImGui::MenuItem("New"))  
+            showNewCloud_ = true;
+    
         if (ImGui::MenuItem("Open", "Ctrl+O")) {
             NFD_Init();
 
@@ -467,6 +463,27 @@ namespace viUI {
             if (auto temp_cloudData = _cloudData.lock())
                 ImGui::ColorEdit3("points color", (float*)&temp_cloudData->cloudCache[selectedCloudId]->point_color);
             ImGui::End();
+        }
+        
+        if(showNewCloud_)
+        {
+            uint8_t type = 0;
+
+            ImGui::Begin("Type Cloud", &showNewCloud_);
+                if(ImGui::Button("XYZ")) type = 1;
+                ImGui::SameLine();
+                if(ImGui::Button("XYZI")) type = 2;
+                ImGui::SameLine();
+                if(ImGui::Button("XYZRGB")) type = 3;
+            ImGui::End();
+
+            if (type != 0)
+            {
+                if (auto temp_cloud = _cloudData.lock())
+                {
+                    temp_cloud->newCloud(type);
+                }
+            }
         }
 
         if(buttonQuit_) {
