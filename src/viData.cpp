@@ -20,6 +20,8 @@ namespace viData {
     }
 
     void viManageData::pointCloudOpen(std::string path) {
+        
+        std::lock_guard<std::mutex> lk(mt);
 
         detectFormat(path);
 
@@ -142,6 +144,8 @@ namespace viData {
 
     void viManageData::newCloud(uint8_t type) {
 
+        std::lock_guard<std::mutex> lk(mt);
+
         using CloudVariant = std::variant<
             pcl::PointCloud<pcl::PointXYZ>::Ptr,
             pcl::PointCloud<pcl::PointXYZI>::Ptr,
@@ -179,7 +183,6 @@ namespace viData {
 
         std::shared_ptr<CloudData> temp_cloudData = std::make_shared<CloudData> ();
         temp_cloudData->_cloud = cloud2;
-        //cloudBuffer(temp_cloudData); // проблема многопоточки
         cloudCache[name] = temp_cloudData;
     }
 

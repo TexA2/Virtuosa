@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <variant>
+#include <mutex>
 
 
 namespace viData {
@@ -71,6 +72,7 @@ namespace viData {
         private:
             void intensityToColor(float intensity, float& r, float& g, float& b);
             std::string getFileName(const std::string& path);
+            mutable std::mutex mt;
     };
 
 }
