@@ -203,7 +203,7 @@ namespace viWidget {
                     cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
                     cloudData->cloudCache[menuUI->selectedCloudId]->intensity.push_back(1);
 
-                    ++cloud->height;
+                    ++cloud->width;
 
                     uint newSizeCloud = cloud->data.size() - cloudData->cloudCache[menuUI->selectedCloudId]->buffer.used;
 

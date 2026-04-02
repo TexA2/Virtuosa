@@ -180,7 +180,7 @@ namespace viData {
         pcl::PCLPointCloud2::Ptr cloud2 (new pcl::PCLPointCloud2());
 
         std::visit([&cloud2](auto& cloud){
-            cloud->width = 1;
+            cloud->height = 1;
             pcl::toPCLPointCloud2(*cloud, *cloud2);
         }, temp_cloud);
 
