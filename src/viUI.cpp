@@ -418,19 +418,41 @@ namespace viUI {
 
                 if (auto temp_data = _cloudData.lock())
                 {
-                    // TODO переделать под новый формат
-                    // auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
-                    // for (auto &point : cloud->data)
-                    // {
-                    //     glm::vec4 pointV (point.x, point.y, point.z, 1.f);
-                    //     pointV = scalingMatrix * pointV;
-                    //     point.x = pointV.x;
-                    //     point.y = pointV.y;
-                    //     point.z = pointV.z;
-                    // }
+                    auto cloud = temp_data->cloudCache[selectedCloudId]->_cloud;
+                    for (uint i = 0 , skip = 0 ; i < cloud->data.size();)
+                    {
+                        uint start = i;
 
-                    // glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache.begin()->second->buffer.pointVBO);
-                    // glBufferData(GL_ARRAY_BUFFER, cloud->size() * sizeof(pcl::PointXYZI), cloud->data(), GL_DYNAMIC_DRAW);
+                        float x;
+                        std::memcpy(&x, &cloud->data[i], sizeof(float));
+                        i += 4;
+
+                        float y;
+                        std::memcpy(&y, &cloud->data[i], sizeof(float));
+                        i += 4;
+
+                        float z;
+                        std::memcpy(&z, &cloud->data[i], sizeof(float));
+                        i += 4;
+                        
+                        glm::vec4 pointV (x, y, z, 1.f);
+                        pointV = scalingMatrix * pointV;
+
+                        std::memcpy(&cloud->data[start], &pointV.x, sizeof(float));
+                        start += 4;
+
+                        std::memcpy(&cloud->data[start], &pointV.y, sizeof(float));
+                        start += 4;
+
+                        std::memcpy(&cloud->data[start], &pointV.z, sizeof(float));
+                        start += 4;
+
+                        i += 4; // пропускаем цвет
+                    }
+
+                    glBindBuffer(GL_ARRAY_BUFFER, temp_data->cloudCache[selectedCloudId]->buffer.pointVBO);
+                    glBufferSubData(GL_ARRAY_BUFFER, 0, temp_data->cloudCache[selectedCloudId]->_cloud->data.size(), 
+                                                                temp_data->cloudCache[selectedCloudId]->_cloud->data.data());
                 }
             }
             ImGui::PopItemWidth();
